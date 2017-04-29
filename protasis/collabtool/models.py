@@ -54,6 +54,6 @@ class Project(models.Model):
     bibtex = models.TextField()
     venue = models.ForeignKey(Venue)
 
-    # @permalink
-    # def get_absolute_url(self):
-    #    return reverse('views.project', args=[str(self.id), str(self.slug)])
+    @permalink
+    def get_absolute_url(self):
+        return reverse('views.project', args=[str(self.id), str(self.slug)])
