@@ -12,5 +12,7 @@ def index(request):
 def project(request, project_id, project_slug):
     template = loader.get_template('project.html')
     context = {
+        'project_slug': project_slug,
     }
+
     return HttpResponse(template.render(context, request))

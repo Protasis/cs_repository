@@ -2,12 +2,12 @@
 
 {% load bootstrap3 %}
 
+<title>{% block title %}(no title){% endblock %}</title>
 {% block bootstrap3_content %}
     <div class="container">
-        <h1>{% block title %}(no title){% endblock %}</h1>
 
         <p>
-			YOLO
+        {{project_slug}}
         </p>
 
         {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
