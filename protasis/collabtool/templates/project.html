@@ -16,7 +16,7 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table">
+                <table class="table table-striped">
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Authors</th>
                         <td>{% for author in project.authors.all %}
@@ -32,11 +32,21 @@
                         <th scope="row" class="col-md-2 col-xs-3">Abstract</th>
                         <td>{{project.abstract}}</td>
                     </tr>
-
+                    {% if project.bibtex %}
                     <tr>
-                        <th scope="row" class="col-md-2 col-xs-3"></th>
-                        <td></td>
+                        <th scope="row" class="col-md-2 col-xs-3">Cite</th>
+                        <td>{{project.bibtex}}</td>
                     </tr>
+                    {% endif %}
+                    <tr class="data">
+                        <th scope="row" class="col-md-2 col-xs-3"></th>
+                        <td class="text-right">
+                            <span class="iconspan">{% if project.paper %}<a href="{{project.paper}}">{% endif %}<i class="{%if not project.paper %}disabled_icon {% endif %}fa fa-lg fa-file-pdf-o"></i>{% if project.paper %}</a>{% endif %}</span>
+                            <span class="iconspan">{% if project.code %}<a href="{{project.code}}">{% endif %}<i class="{%if not project.code %}disabled_icon {% endif %}fa fa-lg fa-code-fork"></i>{% if project.code %}</a>{% endif %}  </span>
+                            <span class="iconspan">{% if project.data %}<a href="{{project.data}}">{% endif %}<i class="{%if not project.data %}disabled_icon {% endif %}fa fa-lg fa-database"></i>{% if project.data %}</a>{% endif %}</span>
+                        </td>
+                    </tr>
+
                 </table>
             </div>
         </div>
