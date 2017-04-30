@@ -6,7 +6,41 @@
 
 
 {% block content %}
-    {{project.title}}
 
-    {{project.authors}}
+<row class="clearfix">
+    <div class="col-md-12 col-xs-12 no-padding">
+        <div class="panel panel-info">
+
+            <div class="panel-heading">
+                <b>{{project.title}}</b>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3">Authors</th>
+                        <td>{% for author in project.authors.all %}
+{{author.author.short_name}}{% if not forloop.last %}, {% endif %}
+{% endfor %}</td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3">Published in</th>
+                        <td>{{project.venue.name}}, {{project.venue.date}}, {{project.venue.location}}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3">Abstract</th>
+                        <td>{{project.abstract}}</td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3"></th>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</row>
 {% endblock %}
