@@ -2,20 +2,58 @@
 
 {% load bootstrap3 %}
 
+{% block bootstrap3_title %}protasis.eu - restoring trust in th e cyber space{% endblock %}
 
-{% block head %}
-<title>{% block title %}title{% endblock %}</title>
 
-{% endblock %}
 
 {% block bootstrap3_content %}
     <div class="container">
-
-        <p>
-        {{project_slug}}
-        </p>
-
         {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
+
+<div class="jumbotron text-center">
+
+	<a class="brand"  href="/">
+	<img class="hidden-md" width="50%" style="width: 200px;" src="/static/img/protasis_logo.png" alt="PROTASIS"/>
+	<img class="hidden-lg" style="width: 200px;" width="50%" src="/static/img/protasis_logo.png" alt="PROTASIS"/>
+	</a>
+
+
+    	<p class="lead">
+    		<h3>PROTASIS: Connecting the dots...</h3>
+    	</p> 
+</div>
+<div class="navbar navbar-static">
+<div class="navbar-inner" > <!-- style="text-align:center;padding-top: 16px;"> -->
+    <ul class="nav nav-pills" role="navigation" > <!-- style="float: none; display:inline-block;"> -->
+        
+
+
+<li class="active">
+		<a href="/">Home</a>
+</li>
+
+
+
+
+
+<li >
+		<a href="/partners/">Partners</a>
+</li>
+
+
+
+
+
+<li >
+		<a href="/publications/">Publications</a>
+</li>
+
+
+
+    </ul>
+</div>
+</div>
+
 
         {% block content %}(no content){% endblock %}
     </div>

@@ -3,6 +3,7 @@ from .models import Author, Institution, InstitutionAuthor, Project, Venue
 
 
 class ProjectAdmin(admin.ModelAdmin):
+    filter_horizontal = ('authors',)
     exclude = ('slug',)
 
 

@@ -83,8 +83,11 @@ class Project(models.Model):
     data = models.URLField(null=True, blank=True)
     paper = models.URLField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
-    corresponding = models.ForeignKey(InstitutionAuthor, null=True, blank=True, related_name="+")
+    corresponding = models.ForeignKey(
+        InstitutionAuthor, null=True, blank=True,
+        related_name="+", on_delete=models.SET_NULL)
     authors = models.ManyToManyField(InstitutionAuthor)
+
 
     bibtex = models.TextField(null=True, blank=True)
     venue = models.ForeignKey(Venue, null=True)
