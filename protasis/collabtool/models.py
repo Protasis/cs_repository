@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import permalink
 from django.urls import reverse
+from django.utils.text import slugify
 
 # Create your models here.
 
@@ -12,19 +13,45 @@ class Venue(models.Model):
     location = models.CharField(max_length=256)
 
 
+    def short_description(self):
+        return self.acronym
+
+    def __unicode__(self):
+        return self.short_description()
+
+    def __str__(self):
+        return self.short_description()
+
 class Institution(models.Model):
     name = models.CharField(max_length=256)
     website = models.URLField()
 
+    def short_description(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
 
 class Author(models.Model):
     name = models.CharField(max_length=256)
     surname = models.CharField(max_length=256)
-    website = models.URLField()
+    website = models.URLField(null=True, blank=True)
 
-    @property
     def short_name(self):
-        return ". ".join([x for x in str(self.name).split(' ')]) + str(self.surname)
+        return ". ".join([x[0] + '.' for x in str(self.name).split(' ')]) + " " + str(self.surname)
+    short_name.short_description = 'Name'
+
+
+    def __str__(self):
+        return self.short_name()
+
+    def save(self, *args, **kwargs):
+        if not self.website:
+            self.website = None
+        super(Author, self).save(*args, **kwargs)
 
 
 class InstitutionAuthor(models.Model):
@@ -35,25 +62,53 @@ class InstitutionAuthor(models.Model):
     institution = models.ForeignKey(Institution)
     email = models.EmailField()
 
+    def short_description(self):
+        return self.author.short_name() + " - " + self.institution.short_description()
+
+    def __str__(self):
+        return self.short_description()
+
+    def __unicode__(self):
+        return self.short_description()
 
 class Project(models.Model):
     """ this class represent a project/paper
     it contains title, authors ref, conference,
     dataset, code and bibtex ref"""
 
-    title = models.CharField(max_length=256)
-    slug = models.SlugField(unique=True)
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
     abstract = models.TextField()
-    code = models.URLField()
-    data = models.URLField()
-    paper = models.URLField()
-    url = models.URLField()
-    corresponding = models.ForeignKey(InstitutionAuthor, related_name="+")
+    code = models.URLField(null=True, blank=True)
+    data = models.URLField(null=True, blank=True)
+    paper = models.URLField(null=True, blank=True)
+    url = models.URLField(null=True, blank=True)
+    corresponding = models.ForeignKey(InstitutionAuthor, null=True, blank=True, related_name="+")
     authors = models.ManyToManyField(InstitutionAuthor)
 
-    bibtex = models.TextField()
-    venue = models.ForeignKey(Venue)
+    bibtex = models.TextField(null=True, blank=True)
+    venue = models.ForeignKey(Venue, null=True)
 
     @permalink
     def get_absolute_url(self):
         return reverse('views.project', args=[str(self.id), str(self.slug)])
+
+    def save(self, *args, **kwargs):
+
+        for x in [self.code, self.data, self.paper, self.url, self.bibtex, self.corresponding]:
+            if not x: x = None
+
+        self.slug = slugify(self.title)
+        print(self.slug)
+
+        super(Project, self).save(*args, **kwargs)
+
+    def short_description(self):
+        return self.title
+
+    def __str__(self):
+        return self.short_description()
+
+    def __unicode__(self):
+        return self.short_description()
+

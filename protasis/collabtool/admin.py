@@ -1,9 +1,14 @@
 from django.contrib import admin
-from . import models
+from .models import Author, Institution, InstitutionAuthor, Project, Venue
+
+
+class ProjectAdmin(admin.ModelAdmin):
+    exclude = ('slug',)
+
 
 # Register your models here.
-admin.site.register(models.Author)
-admin.site.register(models.Institution)
-admin.site.register(models.Project)
-admin.site.register(models.Venue)
-admin.site.register(models.InstitutionAuthor)
+admin.site.register(Author)
+admin.site.register(Institution)
+admin.site.register(Project, ProjectAdmin)
+admin.site.register(Venue)
+admin.site.register(InstitutionAuthor)

@@ -1,18 +1,9 @@
-{% extends 'bootstrap.html' %}
-
+{% extends 'base.html' %}
 {% load bootstrap3 %}
 
-<title>{% block title %}(no title){% endblock %}</title>
-{% block bootstrap3_content %}
-    <div class="container">
 
-        <p>
-        {{project_slug}}
-        </p>
+{% block title %} {{project}} {% endblock %}
 
-        {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
-
-        {% block content %}(no content){% endblock %}
-    </div>
-
+{% block content %}
+    YOLOOOOOO!
 {% endblock %}

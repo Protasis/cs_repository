@@ -1,0 +1,23 @@
+{% extends 'bootstrap.html' %}
+
+{% load bootstrap3 %}
+
+
+{% block head %}
+<title>{% block title %}title{% endblock %}</title>
+
+{% endblock %}
+
+{% block bootstrap3_content %}
+    <div class="container">
+
+        <p>
+        {{project_slug}}
+        </p>
+
+        {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
+
+        {% block content %}(no content){% endblock %}
+    </div>
+
+{% endblock %}
