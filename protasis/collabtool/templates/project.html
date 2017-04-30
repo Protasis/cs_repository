@@ -3,11 +3,10 @@
 
 
 {% block bootstrap3_title %} {{project}} {% endblock %}
-{% block bootstrap3_extra_head %}
-<link rel="stylesheet" type="text/css" href="/static/css/protasis.css"/>
-{% endblock %}
 
 
 {% block content %}
-    YOLOOOOOO!
+    {{project.title}}
+
+    {{project.authors}}
 {% endblock %}

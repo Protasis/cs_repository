@@ -1,9 +1,13 @@
 {% extends 'bootstrap.html' %}
 
 {% load bootstrap3 %}
+{% load staticfiles %}
 
-{% block bootstrap3_title %}protasis.eu - restoring trust in th e cyber space{% endblock %}
+{% block bootstrap3_title %}protasis.eu - restoring trust in the cyber space{% endblock %}
 
+{% block bootstrap3_extra_head %}
+<link rel="stylesheet" type="text/css" href="{% static "css/protasis.css" %}"/>
+{% endblock %}
 
 
 {% block bootstrap3_content %}
@@ -13,47 +17,29 @@
 <div class="jumbotron text-center">
 
 	<a class="brand"  href="/">
-	<img class="hidden-md" width="50%" style="width: 200px;" src="/static/img/protasis_logo.png" alt="PROTASIS"/>
-	<img class="hidden-lg" style="width: 200px;" width="50%" src="/static/img/protasis_logo.png" alt="PROTASIS"/>
+        <img class="hidden-md" width="50%" style="width: 150px;" src="{% static "img/protasis_logo.png" %}" alt="PROTASIS"/>
+        <img class="hidden-lg" style="width: 150px;" width="50%" src="{% static "img/protasis_logo.png" %} alt="PROTASIS"/>
 	</a>
 
 
     	<p class="lead">
-    		<h3>PROTASIS: Connecting the dots...</h3>
+    		<h4>PROTASIS: Connecting the dots...</h4>
     	</p> 
 </div>
-<div class="navbar navbar-static">
-<div class="navbar-inner" > <!-- style="text-align:center;padding-top: 16px;"> -->
-    <ul class="nav nav-pills" role="navigation" > <!-- style="float: none; display:inline-block;"> -->
-        
 
+<!--
+<div class="navbar navbar-static">
+<div class="navbar-inner" >
+<ul class="nav nav-pills" role="navigation" >
 
 <li class="active">
 		<a href="/">Home</a>
 </li>
 
-
-
-
-
-<li >
-		<a href="/partners/">Partners</a>
-</li>
-
-
-
-
-
-<li >
-		<a href="/publications/">Publications</a>
-</li>
-
-
-
     </ul>
 </div>
 </div>
-
+--!>
 
         {% block content %}(no content){% endblock %}
 
@@ -61,13 +47,13 @@
 <div id="footer" class="row-fluid">
 
 
-   <div class="span12 text-center "> 
+   <div class="text-center"> 
 	<hr/>
         &copy; 2015 <a href="mailto:protasis-contact@protasis.eu">PROTASIS Project</a>
 
 	</br>
 
-		<img src="/static/img/logo_flag_yellow" alt="EU Flag"/>
+    <img src="{% static 'img/logo_flag_yellow' %}" alt="EU Flag"/>
 </br>
 
 This project is funded by the Marie Sklodowska-Curie Research and Innovation Staff Exchange (RISE)
