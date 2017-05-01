@@ -29,6 +29,10 @@ def project(request, project_id, project_slug):
 @login_required
 def protected_data(request, path, file_root=None):
     # set PRIVATE_MEDIA_ROOT to the root folder of your private media files
+
+    from ipdb import set_trace
+    set_trace()
+
     name = os.path.join(file_root, path)
     if not os.path.isfile(name):
         raise Http404("File not found.")

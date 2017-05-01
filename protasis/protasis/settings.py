@@ -134,4 +134,9 @@ STATICFILES_DIRS = [
 # handling serving files in apache must be
 # implemented maybe with a redirect and
 # https://serverfault.com/questions/800537/recreating-functionality-of-nginxs-x-accel-redirect-on-apache-httpd-able-to-us
-SERV_TYPE = 'test'
+PRIVATE_MEDIA_USE_XSENDFILE = False
+
+DATA_FOLDER = 'data/'
+PAPER_FOLDER = 'paper/'
+
+DATA_URL = '/datasets/'
