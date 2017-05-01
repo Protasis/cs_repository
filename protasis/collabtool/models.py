@@ -3,6 +3,7 @@ from django.db.models import permalink
 from django.urls import reverse
 from django.utils.text import slugify
 from django.contrib.auth.models import User
+from django.conf import settings
 # Create your models here.
 
 
@@ -81,17 +82,17 @@ class Project(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     abstract = models.TextField()
     code = models.URLField(null=True, blank=True)
-    data = models.FileField(null=True, blank=True)
-    paper = models.FileField(null=True, blank=True)
+    data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
+    paper = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
     url = models.URLField(null=True, blank=True)
     corresponding = models.ForeignKey(
         InstitutionAuthor, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL)
     authors = models.ManyToManyField(InstitutionAuthor)
 
-    paper_access = models.ManyToManyField(User, related_name="can_access_paper")
-    data_access = models.ManyToManyField(User, related_name="can_access_data")
-    code_access = models.ManyToManyField(User, related_name="can_access_code")
+    paper_access = models.ManyToManyField(User, related_name="can_access_paper", blank=True)
+    data_access = models.ManyToManyField(User, related_name="can_access_data", blank=True)
+    code_access = models.ManyToManyField(User, related_name="can_access_code", blank=True)
 
     bibtex = models.TextField(null=True, blank=True)
     venue = models.ForeignKey(Venue, null=True)
