@@ -31,9 +31,6 @@ def protected_data(request, project_id, file_root=None):
 
     project = get_object_or_404(Project, pk=project_id)
 
-    from ipdb import set_trace
-    set_trace()
-
     if project.data_protected:
         if not request.user.is_authenticated():
             return HttpResponseForbidden()

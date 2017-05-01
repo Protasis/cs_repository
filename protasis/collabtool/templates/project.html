@@ -41,9 +41,21 @@
                     <tr class="data">
                         <th scope="row" class="col-md-2 col-xs-3"></th>
                         <td class="text-right">
-                            <span class="iconspan">{% if project.paper %}<a href="{{project.paper}}">{% endif %}<i class="{%if not project.paper %}disabled_icon {% endif %}fa fa-lg fa-file-pdf-o"></i>{% if project.paper %}</a>{% endif %}</span>
-                            <span class="iconspan">{% if project.code %}<a href="{{project.code}}">{% endif %}<i class="{%if not project.code %}disabled_icon {% endif %}fa fa-lg fa-code-fork"></i>{% if project.code %}</a>{% endif %}  </span>
-                            <span class="iconspan">{% if project.data %}<a href="{{project.data}}">{% endif %}<i class="{%if not project.data %}disabled_icon {% endif %}fa fa-lg fa-database"></i>{% if project.data %}</a>{% endif %}</span>
+                            <span class="iconspan">
+                                {% if project.paper %}<a href="{{project.paper}}">{% endif %}
+                                    <i class="{%if not project.paper %}disabled_icon {% endif %}fa fa-lg fa-file-pdf-o"></i>
+                                {% if project.paper %}</a>{% endif %}
+                            </span>
+                            <span class="iconspan">
+                                {% if project.code %}<a href="{{project.code}}">{% endif %}
+                                    <i class="{%if not project.code %}disabled_icon {% endif %}fa fa-lg fa-code-fork"></i>
+                                {% if project.code %}</a>{% endif %}  </span>
+                            <span class="iconspan fa-stack fa-lg">
+                                {% if project.data %}<a href="{% url 'protected_data' project.pk %}">{% endif %}
+                                    <i class="{%if not project.data %}disabled_icon {% endif %}fa fa-stack-1x fa-database"></i>
+                                    {% if project.data_protected %}<i class="fa fa-exclamation fa-stack-1x text-danger"></i>{% endif %}
+                                {% if project.data %}</a>{% endif %}
+                            </span>
                         </td>
                     </tr>
 
