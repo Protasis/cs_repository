@@ -140,3 +140,5 @@ DATA_FOLDER = 'data/'
 PAPER_FOLDER = 'paper/'
 
 DATA_URL = '/datasets/'
+
+DATA_ROOT = '/home/ocean/projects/collabtool/protasis/data/'

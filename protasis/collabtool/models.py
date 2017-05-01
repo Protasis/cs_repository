@@ -83,6 +83,9 @@ class Project(models.Model):
     abstract = models.TextField()
     code = models.URLField(null=True, blank=True)
     data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
+
+    data_protected = models.BooleanField()
+
     paper = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
     url = models.URLField(null=True, blank=True)
     corresponding = models.ForeignKey(
@@ -103,7 +106,7 @@ class Project(models.Model):
 
     def save(self, *args, **kwargs):
 
-        for x in [self.code, self.data, self.paper, self.url, self.bibtex, self.corresponding]:
+        for x in [self.code, self.url, self.bibtex, self.corresponding]:
             if not x:
                 x = None
 
