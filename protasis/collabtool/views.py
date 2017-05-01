@@ -34,16 +34,21 @@ def protected_data(request, project_id, file_root=None):
     from ipdb import set_trace
     set_trace()
 
-    if project not in request.user.can_access_data.all():
-        return HttpResponseForbidden()
+    if project.data_protected:
+        if not request.user.is_authenticated():
+            return HttpResponseForbidden()
+
+        if project not in request.user.can_access_data.all():
+            return HttpResponseForbidden()
 
     if not (project.data and project.data.name):
         return HttpResponseNotFound()
 
     path = project.data.name
+    return serve_static(request, path, file_root)
 
 
-
+def serve_static(request, path, file_root):
     # set PRIVATE_MEDIA_USE_XSENDFILE in your deployment-specific settings file
     # should be false for development, true when your webserver supports xsendfile
     if settings.PRIVATE_MEDIA_USE_XSENDFILE:

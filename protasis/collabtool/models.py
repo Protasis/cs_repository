@@ -84,7 +84,7 @@ class Project(models.Model):
     code = models.URLField(null=True, blank=True)
     data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
 
-    data_protected = models.BooleanField()
+    data_protected = models.BooleanField(default=False)
 
     paper = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
     url = models.URLField(null=True, blank=True)
