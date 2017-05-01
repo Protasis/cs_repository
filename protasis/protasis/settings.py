@@ -128,3 +128,10 @@ STATIC_ROOT = 'statics'
 STATICFILES_DIRS = [
         os.path.join(BASE_DIR, "static"),
 ]
+
+
+# this can has values 'test' or 'nginx'
+# handling serving files in apache must be
+# implemented maybe with a redirect and
+# https://serverfault.com/questions/800537/recreating-functionality-of-nginxs-x-accel-redirect-on-apache-httpd-able-to-us
+SERV_TYPE = 'test'

@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import permalink
 from django.urls import reverse
 from django.utils.text import slugify
-
+from django.contrib.auth.models import User
 # Create your models here.
 
 
@@ -12,7 +12,6 @@ class Venue(models.Model):
     date = models.DateField()
     location = models.CharField(max_length=256)
 
-
     def short_description(self):
         return self.acronym
 
@@ -21,6 +20,7 @@ class Venue(models.Model):
 
     def __str__(self):
         return self.short_description()
+
 
 class Institution(models.Model):
     name = models.CharField(max_length=256)
@@ -35,6 +35,7 @@ class Institution(models.Model):
     def __str__(self):
         return self.name
 
+
 class Author(models.Model):
     name = models.CharField(max_length=256)
     surname = models.CharField(max_length=256)
@@ -43,7 +44,6 @@ class Author(models.Model):
     def short_name(self):
         return ". ".join([x[0] + '.' for x in str(self.name).split(' ')]) + " " + str(self.surname)
     short_name.short_description = 'Name'
-
 
     def __str__(self):
         return self.short_name()
@@ -71,6 +71,7 @@ class InstitutionAuthor(models.Model):
     def __unicode__(self):
         return self.short_description()
 
+
 class Project(models.Model):
     """ this class represent a project/paper
     it contains title, authors ref, conference,
@@ -80,14 +81,17 @@ class Project(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     abstract = models.TextField()
     code = models.URLField(null=True, blank=True)
-    data = models.URLField(null=True, blank=True)
-    paper = models.URLField(null=True, blank=True)
+    data = models.FileField(null=True, blank=True)
+    paper = models.FileField(null=True, blank=True)
     url = models.URLField(null=True, blank=True)
     corresponding = models.ForeignKey(
         InstitutionAuthor, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL)
     authors = models.ManyToManyField(InstitutionAuthor)
 
+    paper_access = models.ManyToManyField(User, related_name="can_access_paper")
+    data_access = models.ManyToManyField(User, related_name="can_access_data")
+    code_access = models.ManyToManyField(User, related_name="can_access_code")
 
     bibtex = models.TextField(null=True, blank=True)
     venue = models.ForeignKey(Venue, null=True)
@@ -99,7 +103,8 @@ class Project(models.Model):
     def save(self, *args, **kwargs):
 
         for x in [self.code, self.data, self.paper, self.url, self.bibtex, self.corresponding]:
-            if not x: x = None
+            if not x:
+                x = None
 
         self.slug = slugify(self.title)
         print(self.slug)
@@ -114,4 +119,3 @@ class Project(models.Model):
 
     def __unicode__(self):
         return self.short_description()
-
