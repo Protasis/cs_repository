@@ -81,7 +81,7 @@ DATABASES = {
         'NAME': 'collabtool',
         'USER': 'protasis',
         'PASSWORD': '***REMOVED***',
-        'HOST': 'localhost',
+        'HOST': '192.168.56.8',
         },
 }
 

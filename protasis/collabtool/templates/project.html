@@ -2,7 +2,7 @@
 {% load bootstrap3 %}
 
 
-{% block bootstrap3_title %} {{project}} {% endblock %}
+{% block bootstrap3_title %} {{paper}} {% endblock %}
 
 
 {% block content %}
@@ -12,49 +12,49 @@
         <div class="panel panel-info">
 
             <div class="panel-heading">
-                <b>{{project.title}}</b>
+                <b>{{paper.title}}</b>
             </div>
 
             <div class="table-responsive">
                 <table class="table table-striped">
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Authors</th>
-                        <td>{% for author in project.authors.all %}
+                        <td>{% for author in paper.authors.all %}
 {{author.author.short_name}}{% if not forloop.last %}, {% endif %}
 {% endfor %}</td>
                     </tr>
 
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Published in</th>
-                        <td>{{project.venue.name}}, {{project.venue.date}}, {{project.venue.location}}</td>
+                        <td>{{paper.venue.name}}, {{paper.venue.date}}, {{paper.venue.location}}</td>
                     </tr>
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Abstract</th>
-                        <td>{{project.abstract}}</td>
+                        <td>{{paper.abstract}}</td>
                     </tr>
-                    {% if project.bibtex %}
+                    {% if paper.bibtex %}
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Cite</th>
-                        <td>{{project.bibtex}}</td>
+                        <td>{{paper.bibtex}}</td>
                     </tr>
                     {% endif %}
                     <tr class="data">
                         <th scope="row" class="col-md-2 col-xs-3"></th>
                         <td class="text-right">
                             <span class="iconspan">
-                                {% if project.paper %}<a href="{{project.paper}}">{% endif %}
-                                    <i class="{%if not project.paper %}disabled_icon {% endif %}fa fa-lg fa-file-pdf-o"></i>
-                                {% if project.paper %}</a>{% endif %}
+                                {% if paper.paper %}<a href="{{paper.paper}}">{% endif %}
+                                    <i class="{%if not paper.paper %}disabled_icon {% endif %}fa fa-lg fa-file-pdf-o"></i>
+                                {% if paper.paper %}</a>{% endif %}
                             </span>
                             <span class="iconspan">
-                                {% if project.code %}<a href="{{project.code}}">{% endif %}
-                                    <i class="{%if not project.code %}disabled_icon {% endif %}fa fa-lg fa-code-fork"></i>
-                                {% if project.code %}</a>{% endif %}  </span>
+                                {% if paper.code %}<a href="{{paper.code}}">{% endif %}
+                                    <i class="{%if not paper.code %}disabled_icon {% endif %}fa fa-lg fa-code-fork"></i>
+                                {% if paper.code %}</a>{% endif %}  </span>
                             <span class="iconspan fa-stack fa-lg">
-                                {% if project.data %}<a href="{% url 'protected_data' project.pk %}">{% endif %}
-                                    <i class="{%if not project.data %}disabled_icon {% endif %}fa fa-stack-1x fa-database"></i>
-                                    {% if project.data_protected %}<i class="fa fa-exclamation fa-stack-1x text-danger"></i>{% endif %}
-                                {% if project.data %}</a>{% endif %}
+                                {% if paper.data %}<a href="{% url 'protected_data' paper.pk %}">{% endif %}
+                                    <i class="{%if not paper.data %}disabled_icon {% endif %}fa fa-stack-1x fa-database"></i>
+                                    {% if paper.data_protected %}<i class="fa fa-exclamation fa-stack-1x text-danger"></i>{% endif %}
+                                {% if paper.data %}</a>{% endif %}
                             </span>
                         </td>
                     </tr>

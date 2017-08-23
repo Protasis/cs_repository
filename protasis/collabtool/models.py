@@ -73,8 +73,17 @@ class InstitutionAuthor(models.Model):
         return self.short_description()
 
 
-class Project(models.Model):
-    """ this class represent a project/paper
+# class Project(models.Model):
+#    """ this class represents a paper (i.e. syssec, protasis)
+#    it will act as a container for any materia (papers, whitepapers,
+#    wiki with material...) """
+
+#    title = models.CharField(max_length=255)
+#    slug = models.SlugField(max_length=255, unique=True)
+
+
+class Paper(models.Model):
+    """ this class represent a paper
     it contains title, authors ref, conference,
     dataset, code and bibtex ref"""
 
@@ -98,11 +107,12 @@ class Project(models.Model):
     code_access = models.ManyToManyField(User, related_name="can_access_code", blank=True)
 
     bibtex = models.TextField(null=True, blank=True)
+
     venue = models.ForeignKey(Venue, null=True)
 
     @permalink
     def get_absolute_url(self):
-        return reverse('views.project', args=[str(self.id), str(self.slug)])
+        return reverse('views.paper', args=[str(self.id), str(self.slug)])
 
     def save(self, *args, **kwargs):
 
@@ -113,7 +123,7 @@ class Project(models.Model):
         self.slug = slugify(self.title)
         print(self.slug)
 
-        super(Project, self).save(*args, **kwargs)
+        super(Paper, self).save(*args, **kwargs)
 
     def short_description(self):
         return self.title

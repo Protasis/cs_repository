@@ -5,43 +5,43 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 import os
 from django.http import HttpResponseNotFound, HttpResponseForbidden
-from .models import Project
+from .models import Paper
 # Create your views here.
 
 
 def index(request):
-    return HttpResponse("Hello world")
+    return HttpResponse("Protasis CollabTool")
 
 
-def project(request, project_id, project_slug):
-    template = loader.get_template('project.html')
+def paper(request, paper_id, paper_slug):
+    template = loader.get_template('paper.html')
 
-    project = get_object_or_404(Project, pk=project_id)
+    paper = get_object_or_404(Paper, pk=paper_id)
 
     context = {
-        'project_slug': project_slug,
-        'project': project,
+        'paper_slug': paper_slug,
+        'paper': paper,
     }
 
     return HttpResponse(template.render(context, request))
 
 
-def protected_data(request, project_id, file_root=None):
+def protected_data(request, paper_id, file_root=None):
     # set PRIVATE_MEDIA_ROOT to the root folder of your private media files
 
-    project = get_object_or_404(Project, pk=project_id)
+    paper = get_object_or_404(Paper, pk=paper_id)
 
-    if project.data_protected:
+    if paper.data_protected:
         if not request.user.is_authenticated():
             return HttpResponseForbidden()
 
-        if project not in request.user.can_access_data.all():
+        if paper not in request.user.can_access_data.all():
             return HttpResponseForbidden()
 
-    if not (project.data and project.data.name):
+    if not (paper.data and paper.data.name):
         return HttpResponseNotFound()
 
-    path = project.data.name
+    path = paper.data.name
     return serve_static(request, path, file_root)
 
 
