@@ -5,12 +5,25 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 import os
 from django.http import HttpResponseNotFound, HttpResponseForbidden
-from .models import Paper
+from .models import Paper, Project
 # Create your views here.
 
 
 def index(request):
     return HttpResponse("Protasis CollabTool")
+
+
+def project(request, project_id, project_slug):
+    template = loader.get_template('project.html')
+
+    project = get_object_or_404(Project, pk=project_id)
+
+    context = {
+        'project_slug': project_slug,
+        'project': project,
+    }
+
+    return HttpResponse(template.render(context, request))
 
 
 def paper(request, paper_id, paper_slug):

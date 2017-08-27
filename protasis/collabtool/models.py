@@ -73,13 +73,79 @@ class InstitutionAuthor(models.Model):
         return self.short_description()
 
 
-# class Project(models.Model):
-#    """ this class represents a paper (i.e. syssec, protasis)
-#    it will act as a container for any materia (papers, whitepapers,
-#    wiki with material...) """
+class Project(models.Model):
+    """ this class represents a paper (i.e. syssec, protasis)
+    it will act as a container for any materia (papers, whitepapers,
+    wiki with material...) """
 
-#    title = models.CharField(max_length=255)
-#    slug = models.SlugField(max_length=255, unique=True)
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
+
+    description = models.TextField()
+
+
+class WhitePaper(models.Model):
+    """ this class similarly to Paper represent
+    a whitepaper, or dissemination material """
+
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
+    abstract = models.TextField()
+    code = models.URLField(null=True, blank=True)
+    data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
+
+    data_protected = models.BooleanField(default=False)
+
+    paper = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
+    url = models.URLField(null=True, blank=True)
+    corresponding = models.ForeignKey(
+        InstitutionAuthor, null=True, blank=True,
+        related_name="+", on_delete=models.SET_NULL)
+    authors = models.ManyToManyField(InstitutionAuthor)
+
+    wp_paper_access = models.ManyToManyField(User, related_name="can_access_paper_wp", blank=True)
+    wp_data_access = models.ManyToManyField(User, related_name="can_access_data_wp", blank=True)
+    wp_code_access = models.ManyToManyField(User, related_name="can_access_code_wp", blank=True)
+
+    bibtex = models.TextField(null=True, blank=True)
+
+    venue = models.ForeignKey(Venue, null=True)
+
+    @permalink
+    def get_absolute_url(self):
+        return reverse('views.whitepaper', args=[str(self.id), str(self.slug)])
+
+    def save(self, *args, **kwargs):
+
+        for x in [self.code, self.url, self.bibtex, self.corresponding]:
+            if not x:
+                x = None
+
+        self.slug = slugify(self.title)
+        print(self.slug)
+
+        super(WhitePaper, self).save(*args, **kwargs)
+
+    def short_description(self):
+        return self.title
+
+    def __str__(self):
+        return self.short_description()
+
+    def __unicode__(self):
+        return self.short_description()
+
+
+class Data(models.Model):
+    """ this class represent data associated
+    to a paper, or a project """
+    pass
+
+
+class Code(models.Model):
+    """ this class represent data associated
+    to a paper, or a project """
+    pass
 
 
 class Paper(models.Model):
@@ -102,9 +168,9 @@ class Paper(models.Model):
         related_name="+", on_delete=models.SET_NULL)
     authors = models.ManyToManyField(InstitutionAuthor)
 
-    paper_access = models.ManyToManyField(User, related_name="can_access_paper", blank=True)
-    data_access = models.ManyToManyField(User, related_name="can_access_data", blank=True)
-    code_access = models.ManyToManyField(User, related_name="can_access_code", blank=True)
+    pa_paper_access = models.ManyToManyField(User, related_name="can_access_paper", blank=True)
+    pa_data_access = models.ManyToManyField(User, related_name="can_access_data", blank=True)
+    pa_code_access = models.ManyToManyField(User, related_name="can_access_code", blank=True)
 
     bibtex = models.TextField(null=True, blank=True)
 
@@ -133,3 +199,11 @@ class Paper(models.Model):
 
     def __unicode__(self):
         return self.short_description()
+
+
+class UserPerms(models.Model):
+    user = models.OneToOneField(User)
+    usr_project_access = models.ManyToManyField(Project, related_name="can_access_paper", blank=True)
+    usr_paper_access = models.ManyToManyField(Paper, related_name="can_access_paper", blank=True)
+    usr_data_access = models.ManyToManyField(Data, related_name="can_access_paper", blank=True)
+    usr_code_access = models.ManyToManyField(Code, related_name="can_access_paper", blank=True)

@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^notifications/', get_nyt_pattern()),
     url(r'^wiki/', get_wiki_pattern()),
     url(r'^$', views.index, name='index'),
+    url(r'^project/(?P<project_id>[0-9]+)/(?P<project_slug>[\w]+)/$', views.project, name='project'),
     url(r'^paper/(?P<paper_id>[0-9]+)/(?P<paper_slug>[\w]+)/$', views.paper, name='paper'),
     url(r'^paper/data/(?P<paper_id>[0-9]+)$', views.protected_data, {'file_root': settings.DATA_FOLDER}, name='protected_data'),
     # url(r'^{}(?P<path>.*)$'.format(settings.DATA_URL[1:]), views.protected_data, {'file_root': settings.DATA_FOLDER}),
