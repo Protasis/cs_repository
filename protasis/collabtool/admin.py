@@ -14,6 +14,11 @@ class WhitePaperAdmin(admin.ModelAdmin):
     exclude = ('slug',)
 
 
+class ProjectAdmin(admin.ModelAdmin):
+    filter_horizontal = ('institutions',)  # 'wp_paper_access', 'wp_data_access', 'wp_code_access')
+    exclude = ('slug',)
+
+
 class GroupAccessAdmin(admin.ModelAdmin):
     exclude = ('write',)
 
@@ -22,7 +27,7 @@ class GroupAccessAdmin(admin.ModelAdmin):
 # Register your models here.
 admin.site.register(Author)
 admin.site.register(Institution)
-admin.site.register(Project)
+admin.site.register(Project, ProjectAdmin)
 admin.site.register(Paper, PaperAdmin)
 admin.site.register(WhitePaper, WhitePaperAdmin)
 admin.site.register(Venue)

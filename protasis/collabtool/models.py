@@ -229,6 +229,7 @@ class Project(models.Model):
     code = models.ManyToManyField(Code)
     paper = models.ManyToManyField(Paper)
     whitepaper = models.ManyToManyField(WhitePaper)
+    institutions = models.ManyToManyField(Institution)
     wiki = models.URLField(default='/collabtool/wiki/')
     # here we keep the "links" between a project and a paper/whitepaper and so on
     # when "saving a paper we need a link to the project and the associated datas?
@@ -239,3 +240,27 @@ class Project(models.Model):
     description = models.TextField()
 
     group_access = models.ManyToManyField(GroupAccess)
+
+    @permalink
+    def get_absolute_url(self):
+        return reverse('views.project', args=[str(self.id), str(self.slug)])
+
+    def save(self, *args, **kwargs):
+
+        for x in [self.code, self.url, self.bibtex, self.corresponding]:
+            if not x:
+                x = None
+
+        self.slug = slugify(self.title)
+        print(self.slug)
+
+        super(Project, self).save(*args, **kwargs)
+
+    def short_description(self):
+        return self.title
+
+    def __str__(self):
+        return self.short_description()
+
+    def __unicode__(self):
+        return self.short_description()
