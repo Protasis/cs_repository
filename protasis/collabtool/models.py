@@ -2,9 +2,40 @@ from django.db import models
 from django.db.models import permalink
 from django.urls import reverse
 from django.utils.text import slugify
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.conf import settings
 # Create your models here.
+
+
+class GroupAccess(models.Model):
+    group = models.ForeignKey(Group, null=False)
+    read = models.BooleanField(default=False)
+
+    # right now write permission is unused will need
+    # further work in django admin to limit the scope
+    # of how much a user can modify
+    write = models.BooleanField(default=False)
+
+    def short_description(self):
+
+        perm_str = ""
+        if self.read:
+            perm_str += 'r'
+        else:
+            perm_str += '-'
+
+        if self.write:
+            perm_str += 'w'
+        else:
+            perm_str += '-'
+
+        return "%s [%s]" % (self.group.name, perm_str)
+
+    def __unicode__(self):
+        return self.short_description()
+
+    def __str__(self):
+        return self.short_description()
 
 
 class Venue(models.Model):
@@ -94,6 +125,7 @@ class WhitePaper(models.Model):
     bibtex = models.TextField(null=True, blank=True)
 
     venue = models.ForeignKey(Venue, null=True)
+    group_access = models.ManyToManyField(GroupAccess)
 
     @permalink
     def get_absolute_url(self):
@@ -126,6 +158,7 @@ class Data(models.Model):
     url = models.URLField(null=True, blank=True)
     data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
     protected = models.BooleanField(default=False)
+    group_access = models.ManyToManyField(GroupAccess)
 
 
 class Code(models.Model):
@@ -134,7 +167,7 @@ class Code(models.Model):
     url = models.URLField(null=True, blank=True)
     code = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
     protected = models.BooleanField(default=False)
-    pass
+    group_access = models.ManyToManyField(GroupAccess)
 
 
 class Paper(models.Model):
@@ -156,6 +189,8 @@ class Paper(models.Model):
     bibtex = models.TextField(null=True, blank=True)
 
     venue = models.ForeignKey(Venue, null=True)
+
+    group_access = models.ManyToManyField(GroupAccess)
 
     @permalink
     def get_absolute_url(self):
@@ -203,22 +238,4 @@ class Project(models.Model):
 
     description = models.TextField()
 
-
-class UserPerms(models.Model):
-    """ this class defines the fine grained permissions for each user
-    """
-    user = models.OneToOneField(User)
-    project_access = models.ManyToManyField(Project, related_name="can_access_project", blank=True)
-    paper_access = models.ManyToManyField(Paper, related_name="can_access_paper", blank=True)
-    whitepaper_access = models.ManyToManyField(WhitePaper, related_name="can_access_whitepaper", blank=True)
-    data_access = models.ManyToManyField(Data, related_name="can_access_data", blank=True)
-    code_access = models.ManyToManyField(Code, related_name="can_access_code", blank=True)
-    data = models.ManyToManyField(Data)
-
-    def has_perm(self, obj):
-
-        # TODO get access to whitepaper_access value
-        if type(obj) == Data and self.whitepaper_access:
-            return True
-
-        raise Exception("argh")
+    group_access = models.ManyToManyField(GroupAccess)

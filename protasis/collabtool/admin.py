@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Author, Institution, InstitutionAuthor,
-    Paper, Venue, Project, WhitePaper, UserPerms)
+    Paper, Venue, Project, WhitePaper, GroupAccess)
 
 
 class PaperAdmin(admin.ModelAdmin):
@@ -14,6 +14,10 @@ class WhitePaperAdmin(admin.ModelAdmin):
     exclude = ('slug',)
 
 
+class GroupAccessAdmin(admin.ModelAdmin):
+    exclude = ('write',)
+
+
 # TODO: fix view to only show Data/Code added for a given project
 # Register your models here.
 admin.site.register(Author)
@@ -23,4 +27,4 @@ admin.site.register(Paper, PaperAdmin)
 admin.site.register(WhitePaper, WhitePaperAdmin)
 admin.site.register(Venue)
 admin.site.register(InstitutionAuthor)
-admin.site.register(UserPerms)
+admin.site.register(GroupAccess)
