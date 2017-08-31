@@ -229,11 +229,11 @@ class Project(models.Model):
     code = models.ManyToManyField(Code)
     paper = models.ManyToManyField(Paper)
     whitepaper = models.ManyToManyField(WhitePaper)
+    wiki = models.URLField(default='/collabtool/wiki/')
     # here we keep the "links" between a project and a paper/whitepaper and so on
     # when "saving a paper we need a link to the project and the associated datas?
     # if project<-paper<-(data+code) I can get the list of associated data/code having
     # only some more stuff there
-    # when uploading code/data let's put them under a paper so it's easy to get the list of related stuff
     # permission side we just need to check access for the user to the single resource!
 
     description = models.TextField()
