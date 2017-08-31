@@ -73,28 +73,16 @@ class InstitutionAuthor(models.Model):
         return self.short_description()
 
 
-class Project(models.Model):
-    """ this class represents a paper (i.e. syssec, protasis)
-    it will act as a container for any materia (papers, whitepapers,
-    wiki with material...) """
-
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
-
-    description = models.TextField()
-
-
 class WhitePaper(models.Model):
     """ this class similarly to Paper represent
     a whitepaper, or dissemination material """
 
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
-    abstract = models.TextField()
-    code = models.URLField(null=True, blank=True)
-    data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
+    title = models.CharField(max_length=255, default='')
+    slug = models.SlugField(max_length=255, unique=True, null=False, default='')
+    abstract = models.TextField(default='')
 
     data_protected = models.BooleanField(default=False)
+    code_protected = models.BooleanField(default=False)
 
     paper = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
     url = models.URLField(null=True, blank=True)
@@ -102,10 +90,6 @@ class WhitePaper(models.Model):
         InstitutionAuthor, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL)
     authors = models.ManyToManyField(InstitutionAuthor)
-
-    wp_paper_access = models.ManyToManyField(User, related_name="can_access_paper_wp", blank=True)
-    wp_data_access = models.ManyToManyField(User, related_name="can_access_data_wp", blank=True)
-    wp_code_access = models.ManyToManyField(User, related_name="can_access_code_wp", blank=True)
 
     bibtex = models.TextField(null=True, blank=True)
 
@@ -139,12 +123,17 @@ class WhitePaper(models.Model):
 class Data(models.Model):
     """ this class represent data associated
     to a paper, or a project """
-    pass
+    url = models.URLField(null=True, blank=True)
+    data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
+    protected = models.BooleanField(default=False)
 
 
 class Code(models.Model):
     """ this class represent data associated
     to a paper, or a project """
+    url = models.URLField(null=True, blank=True)
+    code = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
+    protected = models.BooleanField(default=False)
     pass
 
 
@@ -155,11 +144,7 @@ class Paper(models.Model):
 
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
-    abstract = models.TextField()
-    code = models.URLField(null=True, blank=True)
-    data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
-
-    data_protected = models.BooleanField(default=False)
+    abstract = models.TextField(null=False)
 
     paper = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
     url = models.URLField(null=True, blank=True)
@@ -167,10 +152,6 @@ class Paper(models.Model):
         InstitutionAuthor, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL)
     authors = models.ManyToManyField(InstitutionAuthor)
-
-    pa_paper_access = models.ManyToManyField(User, related_name="can_access_paper", blank=True)
-    pa_data_access = models.ManyToManyField(User, related_name="can_access_data", blank=True)
-    pa_code_access = models.ManyToManyField(User, related_name="can_access_code", blank=True)
 
     bibtex = models.TextField(null=True, blank=True)
 
@@ -201,9 +182,43 @@ class Paper(models.Model):
         return self.short_description()
 
 
+class Project(models.Model):
+    """ this class represents a paper (i.e. syssec, protasis)
+    it will act as a container for any materia (papers, whitepapers,
+    wiki with material...) """
+
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
+
+    data = models.ManyToManyField(Data)
+    code = models.ManyToManyField(Code)
+    paper = models.ManyToManyField(Paper)
+    whitepaper = models.ManyToManyField(WhitePaper)
+    # here we keep the "links" between a project and a paper/whitepaper and so on
+    # when "saving a paper we need a link to the project and the associated datas?
+    # if project<-paper<-(data+code) I can get the list of associated data/code having
+    # only some more stuff there
+    # when uploading code/data let's put them under a paper so it's easy to get the list of related stuff
+    # permission side we just need to check access for the user to the single resource!
+
+    description = models.TextField()
+
+
 class UserPerms(models.Model):
+    """ this class defines the fine grained permissions for each user
+    """
     user = models.OneToOneField(User)
-    usr_project_access = models.ManyToManyField(Project, related_name="can_access_paper", blank=True)
-    usr_paper_access = models.ManyToManyField(Paper, related_name="can_access_paper", blank=True)
-    usr_data_access = models.ManyToManyField(Data, related_name="can_access_paper", blank=True)
-    usr_code_access = models.ManyToManyField(Code, related_name="can_access_paper", blank=True)
+    project_access = models.ManyToManyField(Project, related_name="can_access_project", blank=True)
+    paper_access = models.ManyToManyField(Paper, related_name="can_access_paper", blank=True)
+    whitepaper_access = models.ManyToManyField(WhitePaper, related_name="can_access_whitepaper", blank=True)
+    data_access = models.ManyToManyField(Data, related_name="can_access_data", blank=True)
+    code_access = models.ManyToManyField(Code, related_name="can_access_code", blank=True)
+    data = models.ManyToManyField(Data)
+
+    def has_perm(self, obj):
+
+        # TODO get access to whitepaper_access value
+        if type(obj) == Data and self.whitepaper_access:
+            return True
+
+        raise Exception("argh")

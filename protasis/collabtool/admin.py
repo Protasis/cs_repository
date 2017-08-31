@@ -1,14 +1,16 @@
 from django.contrib import admin
-from .models import Author, Institution, InstitutionAuthor, Paper, Venue, Project, WhitePaper
+from .models import (
+    Author, Institution, InstitutionAuthor,
+    Paper, Venue, Project, WhitePaper, UserPerms)
 
 
 class PaperAdmin(admin.ModelAdmin):
-    filter_horizontal = ('authors', 'pa_paper_access', 'pa_data_access', 'pa_code_access')
+    filter_horizontal = ('authors',)  # 'pa_paper_access', 'pa_data_access', 'pa_code_access')
     exclude = ('slug',)
 
 
 class WhitePaperAdmin(admin.ModelAdmin):
-    filter_horizontal = ('authors', 'wp_paper_access', 'wp_data_access', 'wp_code_access')
+    filter_horizontal = ('authors',)  # 'wp_paper_access', 'wp_data_access', 'wp_code_access')
     exclude = ('slug',)
 
 
@@ -21,3 +23,4 @@ admin.site.register(Paper, PaperAdmin)
 admin.site.register(WhitePaper, WhitePaperAdmin)
 admin.site.register(Venue)
 admin.site.register(InstitutionAuthor)
+admin.site.register(UserPerms)
