@@ -27,7 +27,7 @@ class GroupAccessAdmin(admin.ModelAdmin):
 class CodeDataAccessAdmin(admin.ModelAdmin):
     def get_model_perms(self, *args, **kwargs):
         perms = admin.ModelAdmin.get_model_perms(self, *args, **kwargs)
-        perms['list_hide'] = True
+        perms['list_hide'] = False
         return perms
 
 

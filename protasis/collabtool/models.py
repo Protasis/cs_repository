@@ -159,6 +159,10 @@ class WhitePaper(models.Model):
 class Data(models.Model):
     """ this class represent data associated
     to a paper, or a project """
+
+    class Meta:
+        verbose_name_plural = "data"
+
     url = models.URLField(null=True, blank=True)
     data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
     protected = models.BooleanField(default=False)
