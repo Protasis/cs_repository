@@ -108,16 +108,63 @@ class InstitutionAuthor(models.Model):
         return self.short_description()
 
 
-class WhitePaper(models.Model):
-    """ this class similarly to Paper represent
-    a whitepaper, or dissemination material """
+class Data(models.Model):
+    """ this class represent data associated
+    to a paper, or a project """
 
+    title = models.CharField(max_length=255, null=False, default='')
+    slug = models.SlugField(max_length=255, unique=True, default='')
+    url = models.URLField(null=True, blank=True)
+    data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
+    protected = models.BooleanField(default=False)
+    group_access = models.ManyToManyField(GroupAccess)
+
+    class Meta:
+        verbose_name_plural = "data"
+
+    def short_description(self):
+        return self.__class__.__name__
+        return 'data: ' + self.title
+
+    def __str__(self):
+        return self.short_description()
+
+    def __unicode__(self):
+        return self.short_description()
+
+
+class Code(models.Model):
+    """ this class represent data associated
+    to a paper, or a project """
     title = models.CharField(max_length=255, default='')
-    slug = models.SlugField(max_length=255, unique=True, null=False, default='')
-    abstract = models.TextField(default='')
+    slug = models.SlugField(max_length=255, unique=True, default='')
+    url = models.URLField(null=True, blank=True)
+    code = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
+    protected = models.BooleanField(default=False)
+    group_access = models.ManyToManyField(GroupAccess)
 
-    data_protected = models.BooleanField(default=False)
-    code_protected = models.BooleanField(default=False)
+    class Meta:
+        verbose_name_plural = "code"
+
+    def short_description(self):
+        return 'code: ' + self.title
+
+    def __str__(self):
+        return self.short_description()
+
+    def __unicode__(self):
+        return self.short_description()
+
+
+class Publication(models.Model):
+
+    @permalink
+    def get_absolute_url(self):
+        return reverse('views.' + self.__class__.__name__.lower(), args=[str(self.id), str(self.slug)])
+
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
+    abstract = models.TextField(null=False)
 
     paper = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
     url = models.URLField(null=True, blank=True)
@@ -129,7 +176,42 @@ class WhitePaper(models.Model):
     bibtex = models.TextField(null=True, blank=True)
 
     venue = models.ForeignKey(Venue, null=True)
+
     group_access = models.ManyToManyField(GroupAccess)
+
+    class Meta:
+        abstract = True
+
+
+class Paper(Publication):
+    """ this class represent a paper
+    it contains title, authors ref, conference,
+    dataset, code and bibtex ref"""
+
+    def save(self, *args, **kwargs):
+
+        for x in [self.code, self.url, self.bibtex, self.corresponding]:
+            if not x:
+                x = None
+
+        self.slug = slugify(self.title)
+        print(self.slug)
+
+        super(Paper, self).save(*args, **kwargs)
+
+    def short_description(self):
+        return self.title
+
+    def __str__(self):
+        return self.short_description()
+
+    def __unicode__(self):
+        return self.short_description()
+
+
+class WhitePaper(Publication):
+    """ this class similarly to Paper represent
+    a whitepaper, or dissemination material """
 
     @permalink
     def get_absolute_url(self):
@@ -156,75 +238,6 @@ class WhitePaper(models.Model):
         return self.short_description()
 
 
-class Data(models.Model):
-    """ this class represent data associated
-    to a paper, or a project """
-
-    class Meta:
-        verbose_name_plural = "data"
-
-    url = models.URLField(null=True, blank=True)
-    data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
-    protected = models.BooleanField(default=False)
-    group_access = models.ManyToManyField(GroupAccess)
-
-
-class Code(models.Model):
-    """ this class represent data associated
-    to a paper, or a project """
-    url = models.URLField(null=True, blank=True)
-    code = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
-    protected = models.BooleanField(default=False)
-    group_access = models.ManyToManyField(GroupAccess)
-
-
-class Paper(models.Model):
-    """ this class represent a paper
-    it contains title, authors ref, conference,
-    dataset, code and bibtex ref"""
-
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
-    abstract = models.TextField(null=False)
-
-    paper = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
-    url = models.URLField(null=True, blank=True)
-    corresponding = models.ForeignKey(
-        InstitutionAuthor, null=True, blank=True,
-        related_name="+", on_delete=models.SET_NULL)
-    authors = models.ManyToManyField(InstitutionAuthor)
-
-    bibtex = models.TextField(null=True, blank=True)
-
-    venue = models.ForeignKey(Venue, null=True)
-
-    group_access = models.ManyToManyField(GroupAccess)
-
-    @permalink
-    def get_absolute_url(self):
-        return reverse('views.paper', args=[str(self.id), str(self.slug)])
-
-    def save(self, *args, **kwargs):
-
-        for x in [self.code, self.url, self.bibtex, self.corresponding]:
-            if not x:
-                x = None
-
-        self.slug = slugify(self.title)
-        print(self.slug)
-
-        super(Paper, self).save(*args, **kwargs)
-
-    def short_description(self):
-        return self.title
-
-    def __str__(self):
-        return self.short_description()
-
-    def __unicode__(self):
-        return self.short_description()
-
-
 class Project(models.Model):
     """ this class represents a paper (i.e. syssec, protasis)
     it will act as a container for any materia (papers, whitepapers,
@@ -232,12 +245,13 @@ class Project(models.Model):
 
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
+    description = models.TextField()
 
-    data = models.ManyToManyField(Data)
-    code = models.ManyToManyField(Code)
-    paper = models.ManyToManyField(Paper)
-    whitepaper = models.ManyToManyField(WhitePaper)
-    institutions = models.ManyToManyField(Institution)
+    data = models.ManyToManyField(Data, blank=True)
+    code = models.ManyToManyField(Code, blank=True)
+    paper = models.ManyToManyField(Paper, blank=True)
+    whitepaper = models.ManyToManyField(WhitePaper, blank=True)
+    institutions = models.ManyToManyField(Institution, blank=True)
     wiki = models.URLField(default='/collabtool/wiki/')
     # here we keep the "links" between a project and a paper/whitepaper and so on
     # when "saving a paper we need a link to the project and the associated datas?
@@ -245,12 +259,11 @@ class Project(models.Model):
     # only some more stuff there
     # permission side we just need to check access for the user to the single resource!
 
-    description = models.TextField()
-
-    group_access = models.ManyToManyField(GroupAccess)
+    group_access = models.ManyToManyField(GroupAccess, blank=True)
 
     @permalink
     def get_absolute_url(self):
+        print self.name
         return reverse('views.project', args=[str(self.id), str(self.slug)])
 
     def save(self, *args, **kwargs):

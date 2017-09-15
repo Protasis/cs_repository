@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+
+{% block bootstrap3_title %} {{paper}} {% endblock %}
+
+
+{% block content %}
+
+<row class="clearfix">
+    <div class="col-md-12 col-xs-12 no-padding">
+        <div class="panel panel-info">
+
+            <div class="panel-heading">
+                <b>{{paper.title}}</b>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3">Authors</th>
+                        <td>{% for author in paper.authors.all %}
+{{author.author.short_name}}{% if not forloop.last %}, {% endif %}
+{% endfor %}</td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3">Published in</th>
+                        <td>{{paper.venue.name}}, {{paper.venue.date}}, {{paper.venue.location}}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3">Abstract</th>
+                        <td>{{paper.abstract}}</td>
+                    </tr>
+                    {% if paper.bibtex %}
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3">Cite</th>
+                        <td>{{paper.bibtex}}</td>
+                    </tr>
+                    {% endif %}
+                    <tr class="data">
+                        <th scope="row" class="col-md-2 col-xs-3"></th>
+                        <td class="text-right">
+                            <span class="iconspan">
+                                {% if paper.paper %}<a href="{{paper.paper}}">{% endif %}
+                                    <i class="{%if not paper.paper %}disabled_icon {% endif %}fa fa-lg fa-file-pdf-o"></i>
+                                {% if paper.paper %}</a>{% endif %}
+                            </span>
+                            <span class="iconspan">
+                                {% if paper.code %}<a href="{{paper.code}}">{% endif %}
+                                    <i class="{%if not paper.code %}disabled_icon {% endif %}fa fa-lg fa-code-fork"></i>
+                                {% if paper.code %}</a>{% endif %}  </span>
+                            <span class="iconspan fa-stack fa-lg">
+                                {% if paper.data %}<a href="{% url 'protected_data' paper.pk %}">{% endif %}
+                                    <i class="{%if not paper.data %}disabled_icon {% endif %}fa fa-stack-1x fa-database"></i>
+                                    {% if paper.data_protected %}<i class="fa fa-exclamation fa-stack-1x text-danger"></i>{% endif %}
+                                {% if paper.data %}</a>{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+</row>
+{% endblock %}

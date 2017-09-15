@@ -24,7 +24,10 @@ class GroupAccessAdmin(admin.ModelAdmin):
     exclude = ('write',)
 
 
-class CodeDataAccessAdmin(admin.ModelAdmin):
+class CodeDataAdmin(admin.ModelAdmin):
+
+    prepopulated_fields = {"slug": ("title",)}
+
     def get_model_perms(self, *args, **kwargs):
         perms = admin.ModelAdmin.get_model_perms(self, *args, **kwargs)
         perms['list_hide'] = False
@@ -41,5 +44,5 @@ admin.site.register(WhitePaper, WhitePaperAdmin)
 admin.site.register(Venue)
 admin.site.register(InstitutionAuthor)
 admin.site.register(GroupAccess)
-admin.site.register(Code, CodeDataAccessAdmin)
-admin.site.register(Data, CodeDataAccessAdmin)
+admin.site.register(Code, CodeDataAdmin)
+admin.site.register(Data, CodeDataAdmin)
