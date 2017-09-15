@@ -8,6 +8,10 @@ from django.conf import settings
 
 
 class GroupAccess(models.Model):
+
+    class Meta:
+        verbose_name_plural = "group accesses"
+
     group = models.ForeignKey(Group, null=False)
     read = models.BooleanField(default=False)
 
