@@ -34,25 +34,32 @@ def index(request):
 
 
 # we need a decorator to check credentials
-def check_project_access(project, user):
+def check_group_access(function=None, group_access=None, user=None):
     # check: (u.authenticated and u can access) or (anonymous in access)
-    return user.is_authenticated and any(len(user.groups.filter(id=g.id)) for g in project.group_access.filter(read=True))
+    actual_decorator = user_passes_test(
+        lambda u: u.is_authenticated and any(len(u.groups.filter(id=g.id)) for g in group_access.filter(read=True)))
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
 
 
 def project(request, project_id, project_slug):
+    """ return project view """
+
+    def _project(request, project):
+        context = {
+            'project_slug': project.slug,
+            'project': project,
+            'description': mark_safe(clean(markdown(project.description), ALLOWED_TAGS))
+        }
+
+        return HttpResponse(template.render(context, request))
+
     template = loader.get_template('project.html')
 
-    project = get_object_or_404(Project, pk=project_id)
+    p = get_object_or_404(Project, pk=project_id)
 
-    if not check_project_access(project, request.user):
-        return HttpResponse(status=404)
-    context = {
-        'project_slug': project_slug,
-        'project': project,
-        'description': mark_safe(clean(markdown(project.description), ALLOWED_TAGS))
-    }
-
-    return HttpResponse(template.render(context, request))
+    return check_group_access(_project, p.group_access)(request, p)
 
 
 def paper(request, paper_id, paper_slug):
