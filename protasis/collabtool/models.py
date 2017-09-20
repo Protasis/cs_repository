@@ -258,7 +258,7 @@ class Project(models.Model):
     # only some more stuff there
     # permission side we just need to check access for the user to the single resource!
 
-    group_access = models.ManyToManyField(GroupAccess, blank=True)
+    group_access = models.ManyToManyField(GroupAccess, blank=True, related_name='project_group_accesses')
 
     def get_wiki_url(self):
         # TODO: creating programmatically entries

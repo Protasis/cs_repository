@@ -2,7 +2,7 @@
 {% load bootstrap3 %}
 
 
-{% block bootstrap3_title %} {{paper}} {% endblock %}
+{% block bootstrap3_title %} Project: {{project}} {% endblock %}
 
 
 {% block content %}
@@ -29,8 +29,8 @@
                         <td>{{paper.venue.name}}, {{paper.venue.date}}, {{paper.venue.location}}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="col-md-2 col-xs-3">Abstract</th>
-                        <td>{{paper.abstract}}</td>
+                        <th scope="row" class="col-md-2 col-xs-3">Description</th>
+                        <td>{{description}}</td>
                     </tr>
                     {% if paper.bibtex %}
                     <tr>

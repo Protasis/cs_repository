@@ -2,15 +2,41 @@ from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.http import HttpResponse
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 import os
+from bleach import clean
+from markdown import markdown
 from django.http import HttpResponseNotFound, HttpResponseForbidden
+from django.utils.safestring import mark_safe
 from .models import Paper, Project
+from functools import wraps
 # Create your views here.
+
+ALLOWED_TAGS = [
+    'a',
+    'abbr',
+    'acronym',
+    'b',
+    'blockquote',
+    'code',
+    'em',
+    'i',
+    'li',
+    'ol',
+    'strong',
+    'ul',
+    'p',
+]
 
 
 def index(request):
     return HttpResponse("Protasis CollabTool")
+
+
+# we need a decorator to check credentials
+def check_project_access(project, user):
+    # check: (u.authenticated and u can access) or (anonymous in access)
+    return user.is_authenticated and any(len(user.groups.filter(id=g.id)) for g in project.group_access.filter(read=True))
 
 
 def project(request, project_id, project_slug):
@@ -18,9 +44,12 @@ def project(request, project_id, project_slug):
 
     project = get_object_or_404(Project, pk=project_id)
 
+    if not check_project_access(project, request.user):
+        return HttpResponse(status=404)
     context = {
         'project_slug': project_slug,
         'project': project,
+        'description': mark_safe(clean(markdown(project.description), ALLOWED_TAGS))
     }
 
     return HttpResponse(template.render(context, request))
