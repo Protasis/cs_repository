@@ -252,7 +252,6 @@ class Project(models.Model):
     paper = models.ManyToManyField(Paper, blank=True)
     whitepaper = models.ManyToManyField(WhitePaper, blank=True)
     institutions = models.ManyToManyField(Institution, blank=True)
-    wiki = models.URLField(default='/collabtool/wiki/')
     # here we keep the "links" between a project and a paper/whitepaper and so on
     # when "saving a paper we need a link to the project and the associated datas?
     # if project<-paper<-(data+code) I can get the list of associated data/code having
@@ -261,19 +260,22 @@ class Project(models.Model):
 
     group_access = models.ManyToManyField(GroupAccess, blank=True)
 
-    @permalink
+    def get_wiki_url(self):
+        # TODO: creating programmatically entries
+        # will take a while, let's do it later...
+
+        url = reverse('wiki:get',
+                      kwargs={'path': self.slug+'/'})
+        return url
+
     def get_absolute_url(self):
-        print self.name
         return reverse('views.project', args=[str(self.id), str(self.slug)])
 
     def save(self, *args, **kwargs):
 
-        for x in [self.code, self.url, self.bibtex, self.corresponding]:
-            if not x:
-                x = None
-
         self.slug = slugify(self.title)
-        print(self.slug)
+
+        print self.get_wiki_url()
 
         super(Project, self).save(*args, **kwargs)
 
