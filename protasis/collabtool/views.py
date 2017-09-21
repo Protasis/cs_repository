@@ -8,7 +8,7 @@ from bleach import clean
 from markdown import markdown
 from django.http import HttpResponseNotFound, HttpResponseForbidden
 from django.utils.safestring import mark_safe
-from .models import Paper, Project
+from .models import Paper, Project, WhitePaper
 from functools import wraps
 # Create your views here.
 
@@ -43,36 +43,44 @@ def check_group_access(function=None, group_access=None, user=None):
     return actual_decorator
 
 
-def project(request, project_id, project_slug):
-    """ return project view """
-
-    def _project(request, project):
+def project(request, p):
+        template = loader.get_template('project.html')
         context = {
-            'project_slug': project.slug,
-            'project': project,
-            'description': mark_safe(clean(markdown(project.description), ALLOWED_TAGS))
+            'project_slug': p.slug,
+            'project': p,
+            'description': mark_safe(clean(markdown(p.description), ALLOWED_TAGS))
         }
 
         return HttpResponse(template.render(context, request))
 
-    template = loader.get_template('project.html')
 
-    p = get_object_or_404(Project, pk=project_id)
-
-    return check_group_access(_project, p.group_access)(request, p)
-
-
-def paper(request, paper_id, paper_slug):
+def paper(request, p):
     template = loader.get_template('paper.html')
-
-    paper = get_object_or_404(Paper, pk=paper_id)
-
     context = {
-        'paper_slug': paper_slug,
-        'paper': paper,
+        'paper_slug': p.slug,
+        'paper': p,
     }
 
     return HttpResponse(template.render(context, request))
+
+
+def get_and_check(request, cl, id, slug):
+
+    _classes = {
+        'paper': [Paper, paper],
+        'project': [Project, project],
+        'whitepaper': [WhitePaper, paper]
+    }
+
+    if cl not in _classes:
+        return HttpResponseNotFound()
+    _opts = _classes[cl]
+    p = get_object_or_404(_opts[0], pk=id)
+
+    _view = check_group_access(_opts[1], p.group_access)
+
+    print _view
+    return _view(request, p)
 
 
 def protected_data(request, paper_id, file_root=None):
