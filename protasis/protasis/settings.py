@@ -159,3 +159,6 @@ DATA_ROOT = '/home/ocean/projects/collabtool/protasis/data/'
 SITE_ID = 1
 WIKI_ACCOUNT_HANDLING = False
 WIKI_ACCOUNT_SIGNUP_ALLOWED = False
+
+LOGIN_REDIRECT_URL = '/collabtool/'
+LOGOUT_REDIRECT_URL = '/collabtool/'
