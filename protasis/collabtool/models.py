@@ -158,9 +158,8 @@ class Code(models.Model):
 
 class Publication(models.Model):
 
-    @permalink
     def get_absolute_url(self):
-        return reverse('views.' + self.__class__.__name__.lower(), args=[str(self.id), str(self.slug)])
+        return reverse('get_check', self.__class__.__name__.lower(), args=[str(self.id), str(self.slug)])
 
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
@@ -212,10 +211,6 @@ class Paper(Publication):
 class WhitePaper(Publication):
     """ this class similarly to Paper represent
     a whitepaper, or dissemination material """
-
-    @permalink
-    def get_absolute_url(self):
-        return reverse('views.whitepaper', args=[str(self.id), str(self.slug)])
 
     def save(self, *args, **kwargs):
 
@@ -269,7 +264,7 @@ class Project(models.Model):
         return url
 
     def get_absolute_url(self):
-        return reverse('views.project', args=[str(self.id), str(self.slug)])
+        return reverse('get_check', args=['project', str(self.id), str(self.slug)])
 
     def save(self, *args, **kwargs):
 
