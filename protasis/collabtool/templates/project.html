@@ -12,49 +12,53 @@
         <div class="panel panel-info">
 
             <div class="panel-heading">
-                <b>{{paper.title}}</b>
+                <b>{{project.title}}</b>
             </div>
 
             <div class="table-responsive">
                 <table class="table table-striped">
                     <tr>
-                        <th scope="row" class="col-md-2 col-xs-3">Authors</th>
-                        <td>{% for author in paper.authors.all %}
-{{author.author.short_name}}{% if not forloop.last %}, {% endif %}
-{% endfor %}</td>
-                    </tr>
+                        <th scope="row" class="col-md-1 col-xs-2">Institutions</th>
+                        <td>{% for i in project.institutions.all %}
+                            <a href="{{i.website}}">{{i.name}}</a>
+                            {% if not forloop.last %}, {% endif %}
+                        {% endfor %}</td>
 
-                    <tr>
-                        <th scope="row" class="col-md-2 col-xs-3">Published in</th>
-                        <td>{{paper.venue.name}}, {{paper.venue.date}}, {{paper.venue.location}}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="col-md-2 col-xs-3">Description</th>
+                        <th scope="row" class="col-md-1 col-xs-2">Description</th>
                         <td>{{description}}</td>
                     </tr>
-                    {% if paper.bibtex %}
                     <tr>
-                        <th scope="row" class="col-md-2 col-xs-3">Cite</th>
-                        <td>{{paper.bibtex}}</td>
+                        <th scope="row" class="col-md-1 col-xs-2">
+                        </th>
+                        <td>{{1}}</td>
                     </tr>
-                    {% endif %}
+                    <tr>
+                        <th scope="row" class="col-md-1 col-xs-2">Code</th>
+                        <td>{{1}}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-md-1 col-xs-2">Data</th>
+                        <td>{{1}}</td>
+                    </tr>
                     <tr class="data">
-                        <th scope="row" class="col-md-2 col-xs-3"></th>
+                        <th scope="row" class="col-md-1 col-xs-2"></th>
                         <td class="text-right">
                             <span class="iconspan">
-                                {% if paper.paper %}<a href="{{paper.paper}}">{% endif %}
-                                    <i class="{%if not paper.paper %}disabled_icon {% endif %}fa fa-lg fa-file-pdf-o"></i>
-                                {% if paper.paper %}</a>{% endif %}
+                                {% if project.publications %}<a href="{{project.publications}}">{dd% endif %}
+                                    <i class="{%if not project.publications %}disabled_icon {% endif %}fa fa-2x fa-file-pdf-o"></i>
+                                {% if project.project %}</a>{% endif %}
                             </span>
                             <span class="iconspan">
-                                {% if paper.code %}<a href="{{paper.code}}">{% endif %}
-                                    <i class="{%if not paper.code %}disabled_icon {% endif %}fa fa-lg fa-code-fork"></i>
-                                {% if paper.code %}</a>{% endif %}  </span>
+                                {% if project.code %}<a href="{{project.code}}">{% endif %}
+                                    <i class="{%if not project.code %}disabled_icon {% endif %}fa fa-2x fa-code-fork"></i>
+                                {% if project.code %}</a>{% endif %}  </span>
                             <span class="iconspan fa-stack fa-lg">
-                                {% if paper.data %}<a href="{% url 'protected_data' paper.pk %}">{% endif %}
-                                    <i class="{%if not paper.data %}disabled_icon {% endif %}fa fa-stack-1x fa-database"></i>
-                                    {% if paper.data_protected %}<i class="fa fa-exclamation fa-stack-1x text-danger"></i>{% endif %}
-                                {% if paper.data %}</a>{% endif %}
+                                {% if project.data %}<a href="{% url 'protected_data' project.pk %}">{% endif %}
+                                    <i class="{%if not project.data %}disabled_icon {% endif %}fa fa-stack-2x fa-database"></i>
+                                    {% if project.data_protected %}<i class="fa fa-exclamation fa-stack-2x text-danger"></i>{% endif %}
+                                {% if project.data %}</a>{% endif %}
                             </span>
                         </td>
                     </tr>

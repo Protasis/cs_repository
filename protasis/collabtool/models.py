@@ -4,6 +4,8 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.contrib.auth.models import User, Group
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 # Create your models here.
 
 
@@ -156,81 +158,80 @@ class Code(models.Model):
         return self.short_description()
 
 
-class Publication(models.Model):
+class Publication():
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
 
-    def get_absolute_url(self):
-        return reverse('get_check', self.__class__.__name__.lower(), args=[str(self.id), str(self.slug)])
+    def __str__(self):              # __unicode__ on Python 2
+        return self.content_object.__str__()
+
+
+class PublicationBase(models.Model):
+
+    class Meta:
+        abstract = True
 
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
     abstract = models.TextField(null=False)
-
     paper = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
     url = models.URLField(null=True, blank=True)
     corresponding = models.ForeignKey(
         InstitutionAuthor, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL)
     authors = models.ManyToManyField(InstitutionAuthor)
-
     bibtex = models.TextField(null=True, blank=True)
-
     venue = models.ForeignKey(Venue, null=True)
-
     group_access = models.ManyToManyField(GroupAccess)
 
-    class Meta:
-        abstract = True
+    @classmethod
+    def iter_subclasses(cls):
+        for p in cls.__subclasses__():
+            yield p
+
+    def get_absolute_url(self):
+        return reverse('get_check', self.__class__.__name__.lower(), args=[str(self.id), str(self.slug)])
+
+    def short_description(self):
+        return self.title
+
+    def __str__(self):
+        return self.short_description()
+
+    def __unicode__(self):
+        return self.short_description()
+
+    def save(self, *args, **kwargs):
+
+        for x in [self.code, self.url, self.bibtex, self.corresponding]:
+            if not x:
+                x = None
+
+        self.slug = slugify(self.title)
+
+        super(WhitePaper, self).save(*args, **kwargs)
 
 
-class Paper(Publication):
+class Paper(PublicationBase):
     """ this class represent a paper
     it contains title, authors ref, conference,
     dataset, code and bibtex ref"""
 
-    def save(self, *args, **kwargs):
-
-        for x in [self.code, self.url, self.bibtex, self.corresponding]:
-            if not x:
-                x = None
-
-        self.slug = slugify(self.title)
-        print(self.slug)
-
-        super(Paper, self).save(*args, **kwargs)
-
-    def short_description(self):
-        return self.title
-
-    def __str__(self):
-        return self.short_description()
-
-    def __unicode__(self):
-        return self.short_description()
+    pass
 
 
-class WhitePaper(Publication):
+class WhitePaper(PublicationBase):
     """ this class similarly to Paper represent
     a whitepaper, or dissemination material """
 
-    def save(self, *args, **kwargs):
+    pass
 
-        for x in [self.code, self.url, self.bibtex, self.corresponding]:
-            if not x:
-                x = None
 
-        self.slug = slugify(self.title)
-        print(self.slug)
+class Deliverable(PublicationBase):
+    """ this class represents a deliverable publication """
 
-        super(WhitePaper, self).save(*args, **kwargs)
-
-    def short_description(self):
-        return self.title
-
-    def __str__(self):
-        return self.short_description()
-
-    def __unicode__(self):
-        return self.short_description()
+    pass
 
 
 class Project(models.Model):
