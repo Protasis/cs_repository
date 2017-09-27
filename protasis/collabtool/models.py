@@ -44,6 +44,15 @@ class GroupAccess(models.Model):
         return self.short_description()
 
 
+class AuthMixin(models.Model):
+    """ all fields/methods related to auth here """
+
+    class Meta:
+        abstract = True
+
+    group_access = models.ManyToManyField(GroupAccess)
+
+
 class Venue(models.Model):
     name = models.CharField(max_length=256)
     acronym = models.CharField(max_length=256)
@@ -110,7 +119,7 @@ class InstitutionAuthor(models.Model):
         return self.short_description()
 
 
-class Data(models.Model):
+class Data(AuthMixin, models.Model):
     """ this class represent data associated
     to a paper, or a project """
 
@@ -119,7 +128,6 @@ class Data(models.Model):
     url = models.URLField(null=True, blank=True)
     data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
     protected = models.BooleanField(default=False)
-    group_access = models.ManyToManyField(GroupAccess)
 
     class Meta:
         verbose_name_plural = "data"
@@ -135,7 +143,7 @@ class Data(models.Model):
         return self.short_description()
 
 
-class Code(models.Model):
+class Code(AuthMixin, models.Model):
     """ this class represent data associated
     to a paper, or a project """
     title = models.CharField(max_length=255, default='')
@@ -143,7 +151,6 @@ class Code(models.Model):
     url = models.URLField(null=True, blank=True)
     code = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
     protected = models.BooleanField(default=False)
-    group_access = models.ManyToManyField(GroupAccess)
 
     class Meta:
         verbose_name_plural = "code"
@@ -158,7 +165,7 @@ class Code(models.Model):
         return self.short_description()
 
 
-class Publication():
+class Publication(AuthMixin, models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -183,7 +190,6 @@ class PublicationBase(models.Model):
     authors = models.ManyToManyField(InstitutionAuthor)
     bibtex = models.TextField(null=True, blank=True)
     venue = models.ForeignKey(Venue, null=True)
-    group_access = models.ManyToManyField(GroupAccess)
 
     @classmethod
     def iter_subclasses(cls):
@@ -234,7 +240,7 @@ class Deliverable(PublicationBase):
     pass
 
 
-class Project(models.Model):
+class Project(AuthMixin, models.Model):
     """ this class represents a paper (i.e. syssec, protasis)
     it will act as a container for any materia (papers, whitepapers,
     wiki with material...) """
@@ -245,16 +251,8 @@ class Project(models.Model):
 
     data = models.ManyToManyField(Data, blank=True)
     code = models.ManyToManyField(Code, blank=True)
-    paper = models.ManyToManyField(Paper, blank=True)
-    whitepaper = models.ManyToManyField(WhitePaper, blank=True)
+    publication = models.ManyToManyField(Publication, blank=True)
     institutions = models.ManyToManyField(Institution, blank=True)
-    # here we keep the "links" between a project and a paper/whitepaper and so on
-    # when "saving a paper we need a link to the project and the associated datas?
-    # if project<-paper<-(data+code) I can get the list of associated data/code having
-    # only some more stuff there
-    # permission side we just need to check access for the user to the single resource!
-
-    group_access = models.ManyToManyField(GroupAccess, blank=True, related_name='project_group_accesses')
 
     def get_wiki_url(self):
         # TODO: creating programmatically entries

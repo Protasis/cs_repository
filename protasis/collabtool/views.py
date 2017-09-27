@@ -36,6 +36,8 @@ def index(request):
 # we need a decorator to check credentials
 def check_group_access(function=None, group_access=None, user=None):
     # check: (u.authenticated and u can access) or (anonymous in access)
+    # from IPython import embed
+    # embed()
     actual_decorator = user_passes_test(
         lambda u: u.is_authenticated and any(len(u.groups.filter(id=g.id)) for g in group_access.filter(read=True)))
     if function:
