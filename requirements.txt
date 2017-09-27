@@ -15,3 +15,4 @@ pytz==2017.2
 six==1.10.0
 sorl-thumbnail==12.3
 wiki==0.2.4
+git+https://github.com/arthanson/django-genericadmin#egg=genericadmin
