@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load bootstrap3 %}
 
+{% load proj_publications %}
 
 {% block bootstrap3_title %} Project: {{project}} {% endblock %}
 
@@ -45,8 +46,9 @@
                     <tr class="data">
                         <th scope="row" class="col-md-1 col-xs-2"></th>
                         <td class="text-right">
-                            <span class="iconspan">
-                            </span>
+                            {% proj_publications %}
+                            <!--<span class="iconspan">
+                            </span> --!>
                         </td>
                     </tr>
 
