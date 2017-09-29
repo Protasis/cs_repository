@@ -8,7 +8,7 @@ from bleach import clean
 from markdown import markdown
 from django.http import HttpResponseNotFound, HttpResponseForbidden
 from django.utils.safestring import mark_safe
-from .models import Paper, Project, WhitePaper
+from .models import Paper, Project, WhitePaper, Deliverable
 from functools import wraps
 # Create your views here.
 
@@ -71,7 +71,8 @@ def get_and_check(request, cl, id, slug):
     _classes = {
         'paper': [Paper, paper],
         'project': [Project, project],
-        'whitepaper': [WhitePaper, paper]
+        'whitepaper': [WhitePaper, paper],
+        'deliverable': [Deliverable, paper],
     }
 
     if cl not in _classes:
@@ -85,7 +86,8 @@ def get_and_check(request, cl, id, slug):
     return _view(request, p)
 
 
-def protected_data(request, paper_id, file_root=None):
+# TODO: update to new group access policy!
+def protected_data(request, paper_id,):
     # set PRIVATE_MEDIA_ROOT to the root folder of your private media files
 
     paper = get_object_or_404(Paper, pk=paper_id)
@@ -101,14 +103,15 @@ def protected_data(request, paper_id, file_root=None):
         return HttpResponseNotFound()
 
     path = paper.data.name
-    return serve_static(request, path, file_root)
+    return serve_static(request, path)
 
 
-def serve_static(request, path, file_root):
+def serve_static(request, path):
+    file_root = settings.DATA_ROOT
     # set PRIVATE_MEDIA_USE_XSENDFILE in your deployment-specific settings file
     # should be false for development, true when your webserver supports xsendfile
     if settings.PRIVATE_MEDIA_USE_XSENDFILE:
-        name = os.path.join(settings.DATA_ROOT, path)
+        name = os.path.join(file_root, path)
         if not os.path.isfile(name):
             return HttpResponseNotFound()
         response = HttpResponse()
