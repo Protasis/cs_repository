@@ -30,6 +30,7 @@ class GroupAccessAdmin(admin.ModelAdmin):
 class CodeDataAdmin(admin.ModelAdmin):
 
     prepopulated_fields = {"slug": ("title",)}
+    exclude = ('f_hash', )
 
     def get_model_perms(self, *args, **kwargs):
         perms = admin.ModelAdmin.get_model_perms(self, *args, **kwargs)

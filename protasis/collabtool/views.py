@@ -58,32 +58,11 @@ def paper(request, p):
     return HttpResponse(template.render(context, request))
 
 
-# TODO: update to new group access policy!
-def protected_data(request, paper_id, d):
-    # set PRIVATE_MEDIA_ROOT to the root folder of your private media files
-
-    paper = get_object_or_404(Paper, pk=paper_id)
-
-    if paper.data_protected:
-        if not request.user.is_authenticated():
-            return HttpResponseForbidden()
-
-        if paper not in request.user.can_access_data.all():
-            return HttpResponseForbidden()
-
-    if not (paper.data and paper.data.name):
-        return HttpResponseNotFound()
-
-    path = paper.data.name
-    return serve_static(request, path)
-
-
 _classes = {
     'paper': [Paper, paper],
     'project': [Project, project],
     'whitepaper': [WhitePaper, paper],
     'deliverable': [Deliverable, paper],
-    'data': [Data, protected_data],
 }
 
 
@@ -91,7 +70,8 @@ def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIE
     """
     Decorator for views that checks that the user passes the given test,
     redirecting to the log-in page if necessary. The test should be a callable
-    that takes the user object and returns True if the user passes.
+    that takes the user object and returns an object (that can be used via kwargs)
+    if the user passes, None otherwise
     """
 
     def decorator(view_func):
@@ -121,26 +101,38 @@ def index(request):
     return HttpResponse("Protasis CollabTool")
 
 
+def check_user(r, *args, **kwargs):
+    cl = args[1]['cl']
+    if cl not in _classes:
+        return HttpResponseNotFound()
+    _opts = _classes[cl]
+
+    obj = get_object_or_404(_opts[0], pk=args[1]['id'])
+    u = r.user
+    user_groups = u.groups.all()
+    if u.is_authenticated and obj.group_access.filter(pk__in=map(lambda x: x.id, user_groups)):
+        return obj
+    else:
+        return None
+
+
+def check_data(r, *args, **kwargs):
+    h = args[1]['hash']
+
+    obj = get_object_or_404(Data, f_hash=h)
+    u = r.user
+    user_groups = u.groups.all()
+    if u.is_authenticated and obj.group_access.filter(pk__in=map(lambda x: x.id, user_groups)):
+        return obj
+    else:
+        return None
+
+
 # we need a decorator to check credentials
-def check_group_access(function=None, group_access=None):
-    # check: (u.authenticated and u can access) or (anonymous in access)
-    def check_user(r, *args, **kwargs):
-        cl = args[1]['cl']
-        if cl not in _classes:
-            return HttpResponseNotFound()
-        _opts = _classes[cl]
-
-        obj = get_object_or_404(_opts[0], pk=args[1]['id'])
-        u = r.user
-        user_groups = u.groups.all()
-        if u.is_authenticated and obj.group_access.filter(pk__in=map(lambda x: x.id, user_groups)):
-            return obj
-        else:
-            return None
-
+def check_group_access(function=None, test_func=check_user):
     # from IPython import embed
     # embed()
-    actual_decorator = user_passes_test(check_user)
+    actual_decorator = user_passes_test(test_func)
     if function:
         return actual_decorator(function)
     return actual_decorator
@@ -153,7 +145,7 @@ def get(request, cl, *args, **kwargs):
     return _view(request, kwargs['obj'])
 
 
-def serve_static(request, path):
+def serve_static(request, path, *args, **kwargs):
     file_root = settings.DATA_ROOT
     # set PRIVATE_MEDIA_USE_XSENDFILE in your deployment-specific settings file
     # should be false for development, true when your webserver supports xsendfile
@@ -172,3 +164,11 @@ def serve_static(request, path):
 
         path = os.path.join(*os.path.split(path)[1:])
         return serve(request, path, file_root)
+
+
+@check_group_access(test_func=check_data)
+def protected_data(request, d):
+    # set PRIVATE_MEDIA_ROOT to the root folder of your private media files
+
+    path = d.name
+    return serve_static(request, path)

@@ -127,11 +127,26 @@ class Data(AuthMixin, models.Model):
     slug = models.SlugField(max_length=255, unique=True, default='')
     url = models.URLField(null=True, blank=True)
     data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
-    d_hash = models.CharField(max_length=128, null=True, default='')
+    f_hash = models.CharField(max_length=128, null=True, default='')
     protected = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "data"
+
+    def save(self, *args, **kwargs):
+
+        def sha512(f):
+            import hashlib
+            hash_sha512 = hashlib.sha512()
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_sha512.update(chunk)
+            return hash_sha512.hexdigest()
+
+        if self.data:
+            self.f_hash = sha512(self.data)
+            self.data.seek(0)
+
+        super(Data, self).save(*args, **kwargs)
 
     def short_description(self):
         return self.__class__.__name__
