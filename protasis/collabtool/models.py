@@ -127,6 +127,7 @@ class Data(AuthMixin, models.Model):
     slug = models.SlugField(max_length=255, unique=True, default='')
     url = models.URLField(null=True, blank=True)
     data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
+    d_hash = models.CharField(max_length=128, null=True, default='')
     protected = models.BooleanField(default=False)
 
     class Meta:
