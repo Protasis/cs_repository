@@ -119,22 +119,14 @@ class InstitutionAuthor(models.Model):
         return self.short_description()
 
 
-class Data(AuthMixin, models.Model):
-    """ this class represent data associated
-    to a paper, or a project """
-
-    title = models.CharField(max_length=255, null=False, default='')
-    slug = models.SlugField(max_length=255, unique=True, default='')
-    url = models.URLField(null=True, blank=True)
-    data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
-    f_hash = models.CharField(max_length=128, null=True, default='')
-    protected = models.BooleanField(default=False)
-
+class FileMixin(models.Model):
     class Meta:
-        verbose_name_plural = "data"
+        abstract = True
 
-    def save(self, *args, **kwargs):
+    data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
+    sha512 = models.CharField(max_length=128, null=True, default='')
 
+    def save(self):
         def sha512(f):
             import hashlib
             hash_sha512 = hashlib.sha512()
@@ -146,11 +138,19 @@ class Data(AuthMixin, models.Model):
             self.f_hash = sha512(self.data)
             self.data.seek(0)
 
-        super(Data, self).save(*args, **kwargs)
+        return super(FileMixin, self).save()
 
-    def short_description(self):
-        return self.__class__.__name__
-        return 'data: ' + self.title
+
+class File(FileMixin, models.Model):
+    """ this class represent data associated
+    to a paper, or a project """
+
+    title = models.CharField(max_length=255, null=False, default='')
+    slug = models.SlugField(max_length=255, unique=True, default='')
+    url = models.URLField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
 
     def __str__(self):
         return self.short_description()
@@ -159,26 +159,24 @@ class Data(AuthMixin, models.Model):
         return self.short_description()
 
 
-class Code(AuthMixin, models.Model):
-    """ this class represent data associated
+class Data(File):
+
+    class Meta:
+        verbose_name_plural = "data"
+
+    def short_description(self):
+        return 'data: ' + self.title
+
+
+class Code(File):
+    """ this class represent code associated
     to a paper, or a project """
-    title = models.CharField(max_length=255, default='')
-    slug = models.SlugField(max_length=255, unique=True, default='')
-    url = models.URLField(null=True, blank=True)
-    code = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
-    protected = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "code"
 
     def short_description(self):
         return 'code: ' + self.title
-
-    def __str__(self):
-        return self.short_description()
-
-    def __unicode__(self):
-        return self.short_description()
 
 
 class Publication(AuthMixin, models.Model):
@@ -265,8 +263,8 @@ class Project(AuthMixin, models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField()
 
-    data = models.ManyToManyField(Data, blank=True)
-    code = models.ManyToManyField(Code, blank=True)
+    data = models.ManyToManyField(Data, blank=True, related_name='project_data')
+    code = models.ManyToManyField(Code, blank=True, related_name='project_code')
     publication = models.ManyToManyField(Publication, blank=True)
     institutions = models.ManyToManyField(Institution, blank=True)
 
