@@ -6,6 +6,7 @@ from django.contrib.auth.models import User, Group
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.fields.related_descriptors import ManyToManyDescriptor
 # Create your models here.
 
 
@@ -53,10 +54,46 @@ class AuthMixin(models.Model):
     group_access = models.ManyToManyField(GroupAccess)
     anonymous_access = models.BooleanField(default=False)
 
-    def get_accessible(self, user):
-        return list(self.__class__.objects.raw('''
+    @classmethod
+    def get_accessible(cls, user, recursion=0, done=[], out={}):
+        """ this method will return any model instance that the user can access
+        if recursion>0 it will traverse all the fields of the model and if there
+        is an authenticable one will return also accessible list for it"""
+
+        out = {}
+
+        def cls_query(cls):
+            return cls.objects.raw('''
 SELECT * FROM collabtool_{0} as  T, auth_group as A, collabtool_groupaccess as B, collabtool_{0}_group_access as C
-WHERE A.id=B.group_id AND A.id=C.groupaccess_id'''.format(self.__class__.__name__.lower())))
+WHERE A.id=B.group_id AND A.id=C.groupaccess_id'''.format(cls.__name__.lower()))
+        if recursion == 0:
+            done = list()
+
+        if cls in done:
+            return out
+
+        print cls
+        rq = cls_query(cls)
+        if rq:
+            out.update({cls: list(rq)})
+        done.append(cls)
+
+        print done
+        if recursion > 0:
+            print recursion
+            for k, v in cls.__dict__.iteritems():
+                if (isinstance(v, ManyToManyDescriptor) and
+                   issubclass(v.rel.field.related_model, AuthMixin)):
+                    print v.rel.field.related_model
+                    res = v.rel.field.related_model.get_accessible(
+                                user, recursion-1, done)
+                    if res:
+                        out.update(res)
+
+        return out
+
+    def is_accessible(self, user):
+        return True
 
 
 class Venue(models.Model):
