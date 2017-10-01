@@ -153,7 +153,7 @@ class File(models.Model):
         return self.short_description()
 
 
-class Data(File):
+class Data(AuthMixin, File):
 
     class Meta:
         verbose_name_plural = "data"
@@ -162,7 +162,7 @@ class Data(File):
         return 'data: ' + self.title
 
 
-class Code(File):
+class Code(AuthMixin, File):
     """ this class represent code associated
     to a paper, or a project """
 

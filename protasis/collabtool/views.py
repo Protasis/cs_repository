@@ -77,7 +77,7 @@ def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIE
     def decorator(view_func):
         @wraps(view_func, assigned=available_attrs(view_func))
         def _wrapped_view(request, *args, **kwargs):
-            obj = test_func(request, args, kwargs)
+            obj = test_func(request, *args, **kwargs)
             if obj:
                 kwargs['obj'] = obj
                 return view_func(request, *args, **kwargs)
@@ -102,7 +102,7 @@ def index(request):
 
 
 def check_user(r, *args, **kwargs):
-    cl = args[1]['cl']
+    cl = kwargs['cl']
     if cl not in _classes:
         return HttpResponseNotFound()
     _opts = _classes[cl]
@@ -116,10 +116,18 @@ def check_user(r, *args, **kwargs):
         return None
 
 
-def check_data(r, *args, **kwargs):
-    h = args[1]['hash']
+# we need a decorator to check credentials
+def check_group_access(function=None):
+    actual_decorator = user_passes_test(check_user)
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
 
-    obj = get_object_or_404(Data, f_hash=h)
+
+def check_data(r, *args, **kwargs):
+    h = kwargs['hash']
+
+    obj = get_object_or_404(Data, sha512=h)
     u = r.user
     user_groups = u.groups.all()
     if u.is_authenticated and obj.group_access.filter(pk__in=map(lambda x: x.id, user_groups)):
@@ -129,10 +137,10 @@ def check_data(r, *args, **kwargs):
 
 
 # we need a decorator to check credentials
-def check_group_access(function=None, test_func=check_user):
+def check_data_access(function=None):
     # from IPython import embed
     # embed()
-    actual_decorator = user_passes_test(test_func)
+    actual_decorator = user_passes_test(check_data)
     if function:
         return actual_decorator(function)
     return actual_decorator
@@ -166,9 +174,16 @@ def serve_static(request, path, *args, **kwargs):
         return serve(request, path, file_root)
 
 
-@check_group_access(test_func=check_data)
-def protected_data(request, d):
+@check_data_access()
+def protected_data(request, hash, filename, obj=None):
     # set PRIVATE_MEDIA_ROOT to the root folder of your private media files
+    import os
 
-    path = d.name
-    return serve_static(request, path)
+    d = obj
+    f = os.path.split(d.data.name)[-1]
+
+    from IPython import embed
+    embed()
+    if filename != f:
+        return HttpResponse(status=404)
+    return serve_static(request, f)
