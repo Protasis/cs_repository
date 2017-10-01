@@ -107,7 +107,7 @@ def check_user(r, *args, **kwargs):
         return HttpResponseNotFound()
     _opts = _classes[cl]
 
-    obj = get_object_or_404(_opts[0], pk=args[1]['id'])
+    obj = get_object_or_404(_opts[0], pk=kwargs['id'])
     u = r.user
     user_groups = u.groups.all()
     if u.is_authenticated and obj.group_access.filter(pk__in=map(lambda x: x.id, user_groups)):
