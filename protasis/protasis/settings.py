@@ -154,7 +154,7 @@ PAPER_FOLDER = 'paper/'
 
 DATA_URL = '/datasets/'
 
-DATA_ROOT = '/home/ocean/projects/collabtool/protasis/data/'
+DATA_ROOT = '/home/ocean/projects/protasis_deliverable/protasis/data/'
 
 
 SITE_ID = 1
