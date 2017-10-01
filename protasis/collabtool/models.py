@@ -51,6 +51,7 @@ class AuthMixin(models.Model):
         abstract = True
 
     group_access = models.ManyToManyField(GroupAccess)
+    anonymous_access = models.BooleanField(default=False)
 
     def get_accessible(self, user):
         return list(self.__class__.objects.raw('''

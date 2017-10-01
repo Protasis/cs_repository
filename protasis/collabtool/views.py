@@ -110,7 +110,9 @@ def check_user(r, *args, **kwargs):
     obj = get_object_or_404(_opts[0], pk=kwargs['id'])
     u = r.user
     user_groups = u.groups.all()
-    if u.is_authenticated and obj.group_access.filter(pk__in=map(lambda x: x.id, user_groups)):
+    if obj.anonymous_access or (
+        u.is_authenticated and obj.group_access.filter(
+            pk__in=map(lambda x: x.id, user_groups))):
         return obj
     else:
         return None
@@ -130,7 +132,9 @@ def check_data(r, *args, **kwargs):
     obj = get_object_or_404(Data, sha512=h)
     u = r.user
     user_groups = u.groups.all()
-    if u.is_authenticated and obj.group_access.filter(pk__in=map(lambda x: x.id, user_groups)):
+    if obj.anonymous_access or (
+        u.is_authenticated and obj.group_access.filter(
+            pk__in=map(lambda x: x.id, user_groups))):
         return obj
     else:
         return None
