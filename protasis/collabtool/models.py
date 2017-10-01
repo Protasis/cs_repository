@@ -52,6 +52,11 @@ class AuthMixin(models.Model):
 
     group_access = models.ManyToManyField(GroupAccess)
 
+    def get_accessible(self, user):
+        return list(self.__class__.objects.raw('''
+SELECT * FROM collabtool_{0} as  T, auth_group as A, collabtool_groupaccess as B, collabtool_{0}_group_access as C
+WHERE A.id=B.group_id AND A.id=C.groupaccess_id'''.format(self.__class__.__name__.lower())))
+
 
 class Venue(models.Model):
     name = models.CharField(max_length=256)
@@ -182,7 +187,7 @@ class Publication(AuthMixin, models.Model):
         return self.content_object.__str__()
 
 
-class PublicationBase(models.Model):
+class PublicationBase(AuthMixin, models.Model):
 
     class Meta:
         abstract = True
