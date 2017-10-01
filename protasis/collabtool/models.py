@@ -119,10 +119,16 @@ class InstitutionAuthor(models.Model):
         return self.short_description()
 
 
-class FileMixin(models.Model):
+class File(models.Model):
+    """ this class represent data associated
+    to a paper, or a project """
+
     class Meta:
         abstract = True
 
+    title = models.CharField(max_length=255, null=False, default='')
+    slug = models.SlugField(max_length=255, unique=True, default='')
+    url = models.URLField(null=True, blank=True)
     data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
     sha512 = models.CharField(max_length=128, null=True, default='')
 
@@ -132,25 +138,13 @@ class FileMixin(models.Model):
             hash_sha512 = hashlib.sha512()
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_sha512.update(chunk)
+            f.seek(0)
             return hash_sha512.hexdigest()
 
         if self.data:
-            self.f_hash = sha512(self.data)
-            self.data.seek(0)
+            self.sha512 = sha512(self.data)
 
-        return super(FileMixin, self).save()
-
-
-class File(FileMixin, models.Model):
-    """ this class represent data associated
-    to a paper, or a project """
-
-    title = models.CharField(max_length=255, null=False, default='')
-    slug = models.SlugField(max_length=255, unique=True, default='')
-    url = models.URLField(null=True, blank=True)
-
-    class Meta:
-        abstract = True
+        return super(File, self).save()
 
     def __str__(self):
         return self.short_description()

@@ -27,10 +27,10 @@ class GroupAccessAdmin(admin.ModelAdmin):
     exclude = ('write',)
 
 
-class CodeDataAdmin(admin.ModelAdmin):
+class FileAdmin(admin.ModelAdmin):
 
     prepopulated_fields = {"slug": ("title",)}
-    exclude = ('f_hash', )
+    exclude = ('sha512', )
 
     def get_model_perms(self, *args, **kwargs):
         perms = admin.ModelAdmin.get_model_perms(self, *args, **kwargs)
@@ -44,8 +44,8 @@ admin.site.register(Project, ProjectAdmin)
 admin.site.register(Venue)
 admin.site.register(InstitutionAuthor)
 admin.site.register(GroupAccess)
-admin.site.register(Code, CodeDataAdmin)
-admin.site.register(Data, CodeDataAdmin)
+admin.site.register(Code, FileAdmin)
+admin.site.register(Data, FileAdmin)
 admin.site.register(Publication, PublicationAdmin)
 
 
