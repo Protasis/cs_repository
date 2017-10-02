@@ -15,10 +15,10 @@
 </span> --!>
 
 {% for k,v in rel.iteritems %}
-{{k}} {{v}}{% endfor %}
-
                     <tr>
-                        <th scope="row" class="col-md-1 col-xs-2">Code</th>
-                        <td>{{1}}</td>
+                    <th scope="row" class="col-md-1 col-xs-2">{{k}}</th>
+                    {% for e in v %}
+                    <td><a href="{{e.get_absolute_url}}">{{e}}</a></td>
+                    {% endfor %}
                     </tr>
-
+{{k}} {{v}}{% endfor %}

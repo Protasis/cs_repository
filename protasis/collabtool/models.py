@@ -242,7 +242,11 @@ class File(models.Model):
         if self.title:
             return self.title
         else:
-            return self.__class__.__name__.lower()
+            return self.__class__.__name__
+
+    def get_absolute_url(self):
+        import os
+        return reverse('get_data', args=(self.sha512, os.path.split(self.data.name)[-1]))
 
 
 class Data(AuthMixin, File):
@@ -291,7 +295,7 @@ class PublicationBase(AuthMixin, models.Model):
             yield p
 
     def get_absolute_url(self):
-        return reverse('get_check', self.__class__.__name__.lower(), args=[str(self.id), str(self.slug)])
+        return reverse('get_check', args=(self.__class__.__name__.lower(), str(self.id), str(self.slug)))
 
     def short_description(self):
         return self.title

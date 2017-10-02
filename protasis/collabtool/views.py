@@ -152,10 +152,10 @@ def check_data_access(function=None):
 
 
 @check_group_access()
-def get(request, cl, *args, **kwargs):
+def get(request, cl, id, slug, obj=None):
     _view = _classes[cl][1]
 
-    return _view(request, kwargs['obj'])
+    return _view(request, obj)
 
 
 def serve_static(request, path, *args, **kwargs):
