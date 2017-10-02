@@ -14,13 +14,12 @@ class PublicationInline(GenericStackedInline):
 class PublicationAdmin(GenericAdminModelAdmin):
     # filter_horizontal = ('authors',)  # 'pa_paper_access', 'pa_data_access', 'pa_code_access')
     content_type_whitelist = ['collabtool/' + m.__name__.lower() for m in PublicationBase.iter_subclasses()]
-    exclude = ('slug',)
 
 
 class ProjectAdmin(admin.ModelAdmin):
     # inlines = [PublicationInline, ]
     filter_horizontal = ('institutions', 'publication', 'code', 'data')  # 'wp_paper_access', 'wp_data_access', 'wp_code_access')
-    exclude = ('slug',)
+    prepopulated_fields = {"slug": ("title",)}
 
 
 class GroupAccessAdmin(admin.ModelAdmin):
@@ -51,12 +50,7 @@ admin.site.register(Publication, PublicationAdmin)
 
 class PubItemAdmin(admin.ModelAdmin):
     filter_horizontal = ('authors',)  # 'pa_paper_access', 'pa_data_access', 'pa_code_access')
-    exclude = ('slug',)
-
-
-# class WhitePaperAdmin(admin.ModelAdmin):
-#    filter_horizontal = ('authors',)  # 'wp_paper_access', 'wp_data_access', 'wp_code_access')
-#    exclude = ('slug',)
+    exclude = ('slug', 'sha512')
 
 for m in PublicationBase.iter_subclasses():
     admin.site.register(m, PubItemAdmin)

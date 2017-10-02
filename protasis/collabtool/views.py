@@ -8,7 +8,7 @@ from bleach import clean
 from markdown import markdown
 from django.http import HttpResponseNotFound, HttpResponseForbidden
 from django.utils.safestring import mark_safe
-from .models import Paper, Project, WhitePaper, Deliverable, Data
+from .models import Paper, Project, Report, Deliverable, Data
 from functools import wraps
 # Create your views here.
 
@@ -54,15 +54,17 @@ def paper(request, p):
     context = {
         'paper_slug': p.slug,
         'paper': p,
+        'rel': p.all_accessible_rel(request.user),
+        'description': mark_safe(clean(markdown(p.description), ALLOWED_TAGS))
     }
 
     return HttpResponse(template.render(context, request))
 
 
 _classes = {
-    'paper': [Paper, paper],
     'project': [Project, project],
-    'whitepaper': [WhitePaper, paper],
+    'paper': [Paper, paper],
+    'report': [Report, paper],
     'deliverable': [Deliverable, paper],
 }
 
@@ -184,11 +186,8 @@ def protected_data(request, hash, filename, obj=None):
     # set PRIVATE_MEDIA_ROOT to the root folder of your private media files
     import os
 
-    d = obj
-    f = os.path.split(d.data.name)[-1]
+    f = os.path.split(obj.file.name)[-1]
 
-    from IPython import embed
-    embed()
     if filename != f:
         return HttpResponse(status=404)
     return serve_static(request, f)

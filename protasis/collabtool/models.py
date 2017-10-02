@@ -69,16 +69,12 @@ class AuthMixin(models.Model):
         if cls in done:
             return out
 
-        print cls
         done.append(cls)
 
-        print done
         if recursion > 0:
-            print recursion
             for k, v in cls.__dict__.iteritems():
                 if (  # isinstance(v, ManyToManyDescriptor) and
                    issubclass(v.rel.field.related_model, AuthMixin)):
-                    print v.rel.field.related_model
                     res = v.rel.field.related_model.get_accessible(
                                 user, recursion-1, done)
                     if res:
@@ -192,11 +188,14 @@ class InstitutionAuthor(models.Model):
     we will need this intermediate model, probably there are better ways
     to do this with django, but I'll stick to the simplest option for now"""
     author = models.ForeignKey(Author, related_name='institutions')
-    institution = models.ForeignKey(Institution)
-    email = models.EmailField()
+    institution = models.ForeignKey(Institution, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
 
     def short_description(self):
-        return self.author.short_name() + " - " + self.institution.short_description()
+        out = self.author.short_name()
+        if self.institution:
+            out += "[%s]" % self.institution.short_description()
+        return out
 
     def __str__(self):
         return self.short_description()
@@ -215,7 +214,7 @@ class File(models.Model):
     title = models.CharField(max_length=255, null=False, default='')
     slug = models.SlugField(max_length=255, unique=True, default='')
     url = models.URLField(null=True, blank=True)
-    data = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
+    file = models.FileField(null=True, blank=True, upload_to=settings.DATA_FOLDER)
     sha512 = models.CharField(max_length=128, null=True, default='')
 
     def save(self):
@@ -227,16 +226,12 @@ class File(models.Model):
             f.seek(0)
             return hash_sha512.hexdigest()
 
-        if self.data:
-            self.sha512 = sha512(self.data)
+        if self.file:
+            self.sha512 = sha512(self.file)
+
+        self.slug = slugify(self.title)
 
         return super(File, self).save()
-
-    def __str__(self):
-        return self.short_description()
-
-    def __unicode__(self):
-        return self.short_description()
 
     def short_description(self):
         if self.title:
@@ -244,9 +239,15 @@ class File(models.Model):
         else:
             return self.__class__.__name__
 
+    def __str__(self):
+        return self.short_description()
+
+    def __unicode__(self):
+        return self.short_description()
+
     def get_absolute_url(self):
         import os
-        return reverse('get_data', args=(self.sha512, os.path.split(self.data.name)[-1]))
+        return reverse('get_data', args=(self.sha512, os.path.split(self.file.name)[-1]))
 
 
 class Data(AuthMixin, File):
@@ -268,53 +269,53 @@ class Publication(AuthMixin, models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
+    def short_description(self):
+        if not self.object_id:
+            return self.__class__.__name__
+
+        desc = ''
+        pub = self.content_object
+        if pub.authors.count():
+            for a in pub.authors.all():
+                desc += '%s, ' % a.author.short_name()
+        desc += '%s %s' % (pub.title, pub.date)
+        return desc
+
     def __str__(self):              # __unicode__ on Python 2
-        return self.content_object.__str__()
+        if self.object_id:
+            return self.content_object.__str__()
+        else:
+            return self.__class_.__name__
 
 
-class PublicationBase(AuthMixin, models.Model):
+class PublicationBase(AuthMixin, File, models.Model):
 
     class Meta:
         abstract = True
 
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
-    abstract = models.TextField(null=False)
-    paper = models.FileField(null=True, blank=True, upload_to=settings.PAPER_FOLDER)
-    url = models.URLField(null=True, blank=True)
+    abstract = models.TextField(null=False, blank=True, default='')
+    authors = models.ManyToManyField(InstitutionAuthor, blank=True)
     corresponding = models.ForeignKey(
         InstitutionAuthor, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL)
-    authors = models.ManyToManyField(InstitutionAuthor)
+    date = models.DateField()
     bibtex = models.TextField(null=True, blank=True)
-    venue = models.ForeignKey(Venue, null=True)
+    venue = models.ForeignKey(Venue, null=True, blank=True)
 
     @classmethod
     def iter_subclasses(cls):
-        for p in cls.__subclasses__():
-            yield p
+        return iter(cls.__subclasses__())
 
     def get_absolute_url(self):
         return reverse('get_check', args=(self.__class__.__name__.lower(), str(self.id), str(self.slug)))
 
-    def short_description(self):
-        return self.title
-
-    def __str__(self):
-        return self.short_description()
-
-    def __unicode__(self):
-        return self.short_description()
-
     def save(self, *args, **kwargs):
 
-        for x in [self.code, self.url, self.bibtex, self.corresponding]:
+        for x in [self.venue, self.bibtex, self.corresponding, self.abstract]:
             if not x:
                 x = None
 
-        self.slug = slugify(self.title)
-
-        super(WhitePaper, self).save(*args, **kwargs)
+        super(PublicationBase, self).save(*args, **kwargs)
 
 
 class Paper(PublicationBase):
@@ -325,7 +326,7 @@ class Paper(PublicationBase):
     pass
 
 
-class WhitePaper(PublicationBase):
+class Report(PublicationBase):
     """ this class similarly to Paper represent
     a whitepaper, or dissemination material """
 
@@ -366,8 +367,6 @@ class Project(AuthMixin, models.Model):
     def save(self, *args, **kwargs):
 
         self.slug = slugify(self.title)
-
-        print self.get_wiki_url()
 
         super(Project, self).save(*args, **kwargs)
 
