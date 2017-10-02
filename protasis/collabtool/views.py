@@ -40,8 +40,9 @@ ALLOWED_TAGS = [
 def project(request, p):
         template = loader.get_template('project.html')
         context = {
-            'project_slug': p.slug,
+            'cl': 'project',
             'project': p,
+            'project_slug': p.slug,
             'rel': p.all_accessible_rel(request.user),
             'description': mark_safe(clean(markdown(p.description), ALLOWED_TAGS))
         }
@@ -52,10 +53,11 @@ def project(request, p):
 def paper(request, p):
     template = loader.get_template('paper.html')
     context = {
+        'cl': 'paper',
         'paper_slug': p.slug,
         'paper': p,
         'rel': p.all_accessible_rel(request.user),
-        'description': mark_safe(clean(markdown(p.description), ALLOWED_TAGS))
+        'abstract': mark_safe(clean(markdown(p.abstract), ALLOWED_TAGS))
     }
 
     return HttpResponse(template.render(context, request))

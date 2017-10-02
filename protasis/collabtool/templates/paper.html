@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load bootstrap3 %}
+{% load proj_rel %}
 
 
 {% block bootstrap3_title %} {{paper}} {% endblock %}
@@ -32,6 +33,7 @@
                         <th scope="row" class="col-md-2 col-xs-3">Abstract</th>
                         <td>{{paper.abstract}}</td>
                     </tr>
+                    {% proj_rel %}
                     {% if paper.bibtex %}
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Cite</th>

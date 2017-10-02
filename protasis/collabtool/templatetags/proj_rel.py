@@ -7,7 +7,8 @@ register = template.Library()
 def proj_rel(context):
     """ inclusion tag to show publications in project """
 
-    return {'project': context['project'], 'rel': context['rel']}
+    cl = context['cl']
+    return {'p': context[cl], 'rel': context['rel']}
 
 @register.filter
 def get_class(obj):

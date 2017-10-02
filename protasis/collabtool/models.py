@@ -55,6 +55,9 @@ class AuthMixin(models.Model):
     group_access = models.ManyToManyField(GroupAccess)
     anonymous_access = models.BooleanField(default=False)
 
+    def get_class(self):
+        return self.__class__.__name__
+
     @classmethod
     def all_accessible(cls, user, recursion=0, done=[], out={}):
         """ this method will return any model instance that the user can access
@@ -126,9 +129,9 @@ AND AU.user_id=%d''' % (uid)
                issubclass(f.related_model, AuthMixin) and
                f.related_model not in done):
                 res = self.accessible_rel(user, f.related_model)
-                if res:
-                    out[f.related_model] = list(res)
+                out[f.related_model] = res
                 done.append(f.related_model)
+        print out
         return out
 
     def is_accessible(self, user):
@@ -269,6 +272,9 @@ class Publication(AuthMixin, models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
+    def get_absolute_url(self):
+        return self.content_object.get_absolute_url()
+
     def short_description(self):
         if not self.object_id:
             return self.__class__.__name__
@@ -292,7 +298,7 @@ class Publication(AuthMixin, models.Model):
         if self.object_id:
             return self.content_object.__str__()
         else:
-            return self.__class_.__name__
+            return self.__class__.__name__
 
 
 class PublicationBase(AuthMixin, File, models.Model):

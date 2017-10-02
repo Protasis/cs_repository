@@ -1,7 +1,7 @@
 {% load proj_rel %}
 {% for k,v in rel.iteritems %}
                     <tr>
-                    <th scope="row" class="col-md-1 col-xs-2">{{v.0|get_class}}</th>
+                        <th scope="row" class="col-md-1 col-xs-2">{{k.get_class}}</th>
                     <td><ul>{% for e in v %}
                         <li><a href="{{e.get_absolute_url}}">{{e.short_description}}</a></li>
                     {% endfor %}</ul></td></tr>
