@@ -275,10 +275,17 @@ class Publication(AuthMixin, models.Model):
 
         desc = ''
         pub = self.content_object
-        if pub.authors.count():
+        c = pub.authors.count()
+        if c:
             for a in pub.authors.all():
-                desc += '%s, ' % a.author.short_name()
-        desc += '%s, %s' % (pub.title, pub.date.strftime("%b %Y"))
+                c -= 1
+                if c > 0:
+                    m = ','
+                else:
+                    m = '. '
+                desc += '%s%s' % (a.author.short_name(), m)
+
+        desc += '%s. %s' % (pub.title, pub.date.strftime("%B, %Y"))
         return desc
 
     def __str__(self):              # __unicode__ on Python 2
