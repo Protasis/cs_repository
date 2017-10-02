@@ -13,7 +13,7 @@
         <div class="panel panel-info">
 
             <div class="panel-heading">
-                <b>{{paper.title}}</b>
+                <a href="{{paper.get_file_url}}"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;<b>{{paper.title}}</b></a>
             </div>
 
             <div class="table-responsive">
@@ -21,7 +21,9 @@
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Authors</th>
                         <td>{% for author in paper.authors.all %}
+                            {% if author.author == paper.corresponding %}<b>{% endif %}
 {{author.author.short_name}}{% if not forloop.last %}, {% endif %}
+                            {% if author.author == paper.corresponding %}</b>{% endif %}
 {% endfor %}</td>
                     </tr>
 
@@ -34,10 +36,6 @@
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Date</th>
                         <td>{{paper.date|get_date}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-md-2 col-xs-3">File</th>
-                        <td><a href="{{paper.get_file_url}}"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></td>
                     </tr>
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Abstract</th>
