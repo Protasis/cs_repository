@@ -43,21 +43,6 @@
                     <tr class="data">
                         <th scope="row" class="col-md-2 col-xs-3"></th>
                         <td class="text-right">
-                            <span class="iconspan">
-                                {% if paper.paper %}<a href="{{paper.paper}}">{% endif %}
-                                    <i class="{%if not paper.paper %}disabled_icon {% endif %}fa fa-lg fa-file-pdf-o"></i>
-                                {% if paper.paper %}</a>{% endif %}
-                            </span>
-                            <span class="iconspan">
-                                {% if paper.code %}<a href="{{paper.code}}">{% endif %}
-                                    <i class="{%if not paper.code %}disabled_icon {% endif %}fa fa-lg fa-code-fork"></i>
-                                {% if paper.code %}</a>{% endif %}  </span>
-                            <span class="iconspan fa-stack fa-lg">
-                                {% if paper.data %}<a href="{% url 'protected_data' paper.pk %}">{% endif %}
-                                    <i class="{%if not paper.data %}disabled_icon {% endif %}fa fa-stack-1x fa-database"></i>
-                                    {% if paper.data_protected %}<i class="fa fa-exclamation fa-stack-1x text-danger"></i>{% endif %}
-                                {% if paper.data %}</a>{% endif %}
-                            </span>
                         </td>
                     </tr>
 
