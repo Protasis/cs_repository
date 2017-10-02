@@ -1,4 +1,4 @@
-<span class="iconspan">
+<!-- <span class="iconspan">
 {% if project.publications %}<a href="{{project.publications}}">{% endif %}
       <i class="{%if not project.publications %}disabled_icon {% endif %}fa fa-2x fa-file-pdf-o"></i>
 {% if project.project %}</a>{% endif %}
@@ -12,4 +12,13 @@
             <i class="{%if not project.data %}disabled_icon {% endif %}fa fa-2x fa-database"></i>
             {% if project.data_protected %}<i class="fa fa-exclamation fa-stack-2x text-danger"></i>{% endif %}
         {% if project.data %}</a>{% endif %}
-</span>
+</span> --!>
+
+{% for k,v in rel.iteritems %}
+{{k}} {{v}}{% endfor %}
+
+                    <tr>
+                        <th scope="row" class="col-md-1 col-xs-2">Code</th>
+                        <td>{{1}}</td>
+                    </tr>
+

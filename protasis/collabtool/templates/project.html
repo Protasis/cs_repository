@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load bootstrap3 %}
 
-{% load proj_publications %}
+{% load proj_rel %}
 
 {% block bootstrap3_title %} Project: {{project}} {% endblock %}
 
@@ -13,7 +13,7 @@
         <div class="panel panel-info">
 
             <div class="panel-heading">
-                <b>{{project.title}}</b>
+                <b>Project: {{project.title}}</b>
             </div>
 
             <div class="table-responsive">
@@ -31,31 +31,17 @@
                         <td>{{description}}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="col-md-1 col-xs-2">
-                        </th>
-                        <td>{{1}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-md-1 col-xs-2">Code</th>
-                        <td>{{1}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-md-1 col-xs-2">Data</th>
-                        <td>{{1}}</td>
-                    </tr>
-                    <tr class="data">
-                        <th scope="row" class="col-md-1 col-xs-2"></th>
-                        <td class="text-right">
-                            {% proj_publications %}
-                            <!--<span class="iconspan">
-                            </span> --!>
-                        </td>
+                        <th scope="row" class="col-md-1 col-xs-2">Wiki</th>
+                        <td><a href="{{project.get_wiki_url}}">{{project.get_wiki_url}}</a></td>
                     </tr>
 
+                    {% proj_rel %}
                 </table>
             </div>
         </div>
 
     </div>
 </row>
+
+
 {% endblock %}

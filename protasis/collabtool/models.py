@@ -86,39 +86,42 @@ class AuthMixin(models.Model):
 
         return out
 
-    def accessible_fields(self, user):
-        """ this function will return recursively the linked authenticable objects"""
+    def accessible_rel(self, user, model):
+        """ get the accessible instances of a given model that is in a many-to-many relationship
+        with the current field """
+        model_name = self._meta.model.__name__.lower()
+        rel_model_name = model.__name__.lower()
+        if not (model_name.isalnum() and rel_model_name.isalnum()):
+            raise SuspiciousOperation
+        uid = user.id
+        fid = self.id
+        query = '''
+SELECT * FROM
+       collabtool_%s as F, collabtool_groupaccess as GA, collabtool_%s_group_access as FGA,
+       auth_user_groups as AU, collabtool_%s_%s as MM
+WHERE  F.anonymous_access=TRUE OR (AU.group_id=GA.group_id AND
+       GA.id=FGA.groupaccess_id AND
+       FGA.%s_id=F.id AND
+       F.id=MM.%s_id AND
+       MM.%s_id = %d''' % (
+            rel_model_name, rel_model_name, model_name,
+            rel_model_name, rel_model_name,
+            rel_model_name, model_name, fid)
+        if user.is_authenticated:
+            query += '''
+AND AU.user_id=%d''' % (uid)
+        query += ''')'''
+
+        res = model.objects.raw(query)
+        if res:
+            return list(res)
+        else:
+            return []
+
+    def all_accessible_rel(self, user):
+        """ this function will return the linked authenticable objects"""
 
         out = {}
-
-        def cls_query(user, model):
-            model_name = self._meta.model.__name__.lower()
-            rel_model_name = model.__name__.lower()
-            if not (model_name.isalnum() and rel_model_name.isalnum()):
-                raise SuspiciousOperation
-            uid = user.id
-            fid = self.id
-            query = '''
-SELECT * FROM
-        collabtool_%s as F, collabtool_groupaccess as GA, collabtool_%s_group_access as FGA,
-        auth_user_groups as AU, collabtool_%s_%s as MM
-WHERE AU.user_id=%d AND
-        AU.group_id=GA.group_id AND
-        GA.id=FGA.groupaccess_id AND
-        FGA.%s_id=F.id AND
-        F.id=MM.%s_id AND
-        MM.%s_id = %d''' % (rel_model_name,
-                            rel_model_name,
-                            model_name,
-                            rel_model_name,
-                            uid,
-                            rel_model_name,
-                            rel_model_name,
-                            model_name,
-                            fid)
-            print query
-
-            return model.objects.raw(query)
 
         # cls = self._meta.model
         done = []
@@ -126,7 +129,7 @@ WHERE AU.user_id=%d AND
             if (isinstance(f, ManyToManyField) and
                issubclass(f.related_model, AuthMixin) and
                f.related_model not in done):
-                res = cls_query(user, f.related_model)
+                res = self.accessible_rel(user, f.related_model)
                 if res:
                     out[f.related_model] = list(res)
                 done.append(f.related_model)
@@ -235,14 +238,17 @@ class File(models.Model):
     def __unicode__(self):
         return self.short_description()
 
+    def short_description(self):
+        if self.title:
+            return self.title
+        else:
+            return self.__class__.__name__.lower()
+
 
 class Data(AuthMixin, File):
 
     class Meta:
         verbose_name_plural = "data"
-
-    def short_description(self):
-        return 'data: ' + self.title
 
 
 class Code(AuthMixin, File):
@@ -251,9 +257,6 @@ class Code(AuthMixin, File):
 
     class Meta:
         verbose_name_plural = "code"
-
-    def short_description(self):
-        return 'code: ' + self.title
 
 
 class Publication(AuthMixin, models.Model):

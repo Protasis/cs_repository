@@ -42,6 +42,7 @@ def project(request, p):
         context = {
             'project_slug': p.slug,
             'project': p,
+            'rel': p.all_accessible_rel(request.user),
             'description': mark_safe(clean(markdown(p.description), ALLOWED_TAGS))
         }
 
