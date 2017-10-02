@@ -51,6 +51,7 @@ def project(request, p):
 
 
 def paper(request, p):
+    print p.get_absolute_url()
     template = loader.get_template('paper.html')
     context = {
         'cl': 'paper',

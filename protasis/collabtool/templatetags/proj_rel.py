@@ -13,3 +13,7 @@ def proj_rel(context):
 @register.filter
 def get_class(obj):
     return obj.__class__.__name__
+
+@register.filter
+def get_date(date, arg="%B, %Y"):
+    return date.strftime(arg)

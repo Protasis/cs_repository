@@ -248,9 +248,12 @@ class File(models.Model):
     def __unicode__(self):
         return self.short_description()
 
-    def get_absolute_url(self):
+    def get_file_url(self):
         import os
         return reverse('get_data', args=(self.sha512, os.path.split(self.file.name)[-1]))
+
+    def get_absolute_url(self):
+        return self.get_file_url()
 
 
 class Data(AuthMixin, File):

@@ -25,9 +25,19 @@
 {% endfor %}</td>
                     </tr>
 
+                    {% if paper.venue %}
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Published in</th>
                         <td>{{paper.venue.name}}, {{paper.venue.date}}, {{paper.venue.location}}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3">Date</th>
+                        <td>{{paper.date|get_date}}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3">File</th>
+                        <td><a href="{{paper.get_file_url}}"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></td>
                     </tr>
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Abstract</th>
