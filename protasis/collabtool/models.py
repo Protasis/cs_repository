@@ -311,9 +311,11 @@ class PublicationBase(AuthMixin, File, models.Model):
     corresponding = models.ForeignKey(
         InstitutionAuthor, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL)
-    date = models.DateField()
-    bibtex = models.TextField(null=True, blank=True)
     venue = models.ForeignKey(Venue, null=True, blank=True)
+    date = models.DateField()
+    data = models.ManyToManyField(Data, blank=True)
+    code = models.ManyToManyField(Code, blank=True)
+    bibtex = models.TextField(null=True, blank=True)
 
     @classmethod
     def iter_subclasses(cls):
