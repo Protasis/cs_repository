@@ -18,6 +18,11 @@
             <div class="table-responsive">
                 <table class="table table-striped">
                     <tr>
+                        <th scope="row" class="col-md-1 col-xs-2">Description</th>
+                        <td>{{description}}</td>
+                    </tr>
+
+                    <tr>
                         <th scope="row" class="col-md-1 col-xs-2">Institutions</th>
                         <td>{% for i in project.institutions.all %}
                             <a href="{{i.website}}">{{i.name}}</a>
@@ -25,10 +30,7 @@
                         {% endfor %}</td>
 
                     </tr>
-                    <tr>
-                        <th scope="row" class="col-md-1 col-xs-2">Description</th>
-                        <td>{{description}}</td>
-                    </tr>
+
                     <tr>
                         <th scope="row" class="col-md-1 col-xs-2">Wiki</th>
                         <td><a href="{{project.get_wiki_url}}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>

@@ -21,9 +21,9 @@
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Authors</th>
                         <td>{% for author in paper.authors.all %}
-                            {% if author.author == paper.corresponding %}<b>{% endif %}
+                            {% if author == paper.corresponding %}<b>{% endif %}
 {{author.author.short_name}}{% if not forloop.last %}, {% endif %}
-                            {% if author.author == paper.corresponding %}</b>{% endif %}
+                            {% if author == paper.corresponding %}</b>{% endif %}
 {% endfor %}</td>
                     </tr>
 

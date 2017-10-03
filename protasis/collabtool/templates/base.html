@@ -12,10 +12,10 @@
 
 
 {% block bootstrap3_content %}
-    <div class="container">
-        {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
+<div class="container">
+     {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
 
-<div class="jumbotron text-center">
+    <div class="text-center">
 
 	<!-- <a class="brand"  href="/">
         <img class="hidden-md" width="50%" style="width: 150px;" src="{% static "img/protasis_logo.png" %}" alt="PROTASIS"/>
@@ -26,42 +26,29 @@
         <h4><i class="fa fa-exchange" aria-hidden="true"></i> Cybersecurity Repository</h4>
     	</p>
         <hr>
-</div>
+    </div>
 
-<!--
-<div class="navbar navbar-static">
-<div class="navbar-inner" >
-<ul class="nav nav-pills" role="navigation" >
-
-<li class="active">
-		<a href="/">Home</a>
-</li>
-
+    <div style="margin-top:-14px;" class="navbar navbar-static">
+    <div class="navbar-inner" >
+    <ul class="nav nav-pills" role="navigation" >
+    {% block sidebar %}<li><a href="{% url 'index' %} ">&raquo;&nbsp;Home</a></li>{% endblock %}
     </ul>
-</div>
-</div>
---!>
+    </div>
+    </div>
 
-        {% block content %}(no content){% endblock %}
+
+    {% block content %}(no content){% endblock %}
 
 <!-- footer -->
-<div id="footer" class="row-fluid">
-
-
-   <div class="text-center"> 
-	<hr/>
-        &copy; 2015 <a href="mailto:protasis-contact@protasis.eu">PROTASIS Project</a>
-
-	</br>
-
-    <img src="{% static 'img/logo_flag_yellow' %}" alt="EU Flag"/>
-</br>
-
-This project is funded by the Marie Sklodowska-Curie Research and Innovation Staff Exchange (RISE)
-
-   </div>
+    <div id="footer" class="row-fluid">
+        <div class="text-center"> 
+            <hr/>
+            &copy; 2015 <a href="mailto:protasis-contact@protasis.eu">PROTASIS Project</a></br>
+            <img src="{% static 'img/logo_flag_yellow' %}" alt="EU Flag"/></br>
+            This project is funded by the Marie Sklodowska-Curie Research and Innovation Staff Exchange (RISE)
+        </div>
+    </div>
 
 </div>
 
-    </div>
 {% endblock %}

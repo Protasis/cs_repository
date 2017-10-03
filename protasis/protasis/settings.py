@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'wiki.plugins.images',
     'wiki.plugins.macros',
     'genericadmin',
+    'django_messages',
 ]
 
 MIDDLEWARE = [

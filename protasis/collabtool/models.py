@@ -58,7 +58,7 @@ class AuthMixin(models.Model):
     def get_class(self):
         return self.__class__.__name__
 
-    @classmethod
+    '''@classmethod
     def all_accessible(cls, user, recursion=0, done=[], out={}):
         """ this method will return any model instance that the user can access
         if recursion>0 it will traverse all the fields of the model and if there
@@ -83,7 +83,7 @@ class AuthMixin(models.Model):
                     if res:
                         out.update(res)
 
-        return out
+        return out'''
 
     def accessible_rel(self, user, model):
         """ get the accessible instances of a given model that is in a many-to-many relationship
@@ -129,9 +129,11 @@ AND AU.user_id=%d''' % (uid)
                issubclass(f.related_model, AuthMixin) and
                f.related_model not in done):
                 res = self.accessible_rel(user, f.related_model)
+                if f.related_model == Publication:
+                    print f.related_model
+                    print res
                 out[f.related_model] = res
                 done.append(f.related_model)
-        print out
         return out
 
     def is_accessible(self, user):

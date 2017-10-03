@@ -21,6 +21,7 @@ from django.contrib.auth.views import login, logout
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^msg/', include('django_messages.urls')),
     url(r'^collabtool/', include('collabtool.urls')),
     url(r'^accounts/login/$', login),
     url(r'^accounts/logout/$', logout)
