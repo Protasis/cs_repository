@@ -91,31 +91,58 @@ class AuthMixin(models.Model):
 
         return out'''
 
-    def accessible_rel(self, user, model):
+    def get_accessible(self, user):
+        """ get all the accessible instances of the model """
+
+        query = '''SELECT * FROM collabtool_%s as M, auth_user_groups as AUG,
+        WHERE
+        '''
+
+        res = self._meta.model.query.raw(query)
+        if res:
+            return list(res)
+        return []
+
+    def accessible_rel(self, user, m2m_field):
         """ get the accessible instances of a given model that is in a many-to-many relationship
         with the current field """
-        model_name = self._meta.model.__name__.lower()
-        rel_model_name = model.__name__.lower()
-        if not (model_name.isalnum() and rel_model_name.isalnum()):
-            raise SuspiciousOperation
+        model_name = self._meta.model_name
+        model = m2m_field.related_model
+        model_table = self._meta.db_table
+        rel_model_table = model._meta.db_table
+        print self
+        mm_table = self.__class__.__dict__[m2m_field.attname].rel.field.m2m_db_table()
+
+        def check_inj(s):
+            import string
+            tocheck = s.encode('utf-8').translate(string.maketrans("", "", ), '-_')
+            if not tocheck.isalnum():
+                raise SuspiciousOperation
+
+        check_inj(model_table)
+        check_inj(rel_model_table)
+        check_inj(mm_table)
+        check_inj(m2m_field.attname)
+        check_inj(model_name)
+
         uid = user.id
         fid = self.id
         query = '''
 SELECT * FROM
-       collabtool_%s as F, collabtool_groupaccess as GA, collabtool_%s_group_access as FGA,
-       auth_user_groups as AU, collabtool_%s_%s as MM
+       %s as F, collabtool_groupaccess as GA, %s_group_access as FGA,
+       auth_user_groups as AU, %s as MM
 WHERE  F.anonymous_access=TRUE OR (AU.group_id=GA.group_id AND
        GA.id=FGA.groupaccess_id AND
        FGA.%s_id=F.id AND
        F.id=MM.%s_id AND
        MM.%s_id = %d''' % (
-            rel_model_name, rel_model_name, model_name,
-            rel_model_name, rel_model_name,
-            rel_model_name, model_name, fid)
+            rel_model_table, rel_model_table, mm_table,
+            m2m_field.attname, m2m_field.attname, model_name, fid)
         if user.is_authenticated:
             query += '''
 AND AU.user_id=%d''' % (uid)
         query += ''')'''
+        print query
 
         res = model.objects.raw(query)
         if res:
@@ -134,7 +161,7 @@ AND AU.user_id=%d''' % (uid)
             if (isinstance(f, ManyToManyField) and
                issubclass(f.related_model, AuthMixin) and
                f.related_model not in done):
-                res = self.accessible_rel(user, f.related_model)
+                res = self.accessible_rel(user, f)
                 if f.related_model == Publication:
                     print f.related_model
                     print res
