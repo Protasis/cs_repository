@@ -55,8 +55,14 @@ class AuthMixin(models.Model):
     group_access = models.ManyToManyField(GroupAccess)
     anonymous_access = models.BooleanField(default=False)
 
-    def get_class(self):
-        return self.__class__.__name__
+    def get_model_name(self, plural=False):
+        name = self._meta.model_name.capitalize
+        if plural:
+            return name()+'s'
+        return name()
+
+    def get_pl_model_name(self):
+        return self.get_model_name(True)
 
     '''@classmethod
     def all_accessible(cls, user, recursion=0, done=[], out={}):
@@ -263,6 +269,9 @@ class Data(AuthMixin, File):
     class Meta:
         verbose_name_plural = "data"
 
+    def get_pl_model_name(self):
+        return self._meta.verbose_name_plural.capitalize()
+
 
 class Code(AuthMixin, File):
     """ this class represent code associated
@@ -270,6 +279,9 @@ class Code(AuthMixin, File):
 
     class Meta:
         verbose_name_plural = "code"
+
+    def get_pl_model_name(self):
+        return self._meta.verbose_name_plural.capitalize()
 
 
 class Publication(AuthMixin, models.Model):
