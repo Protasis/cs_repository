@@ -91,14 +91,39 @@ class AuthMixin(models.Model):
 
         return out'''
 
-    def get_accessible(self, user):
+    @staticmethod
+    def check_inj(s):
+        import string
+        tocheck = s.encode('utf-8').translate(string.maketrans("", "", ), '-_')
+        if not tocheck.isalnum():
+            raise SuspiciousOperation
+
+    @classmethod
+    def get_accessible(cls, user):
         """ get all the accessible instances of the model """
 
-        query = '''SELECT * FROM collabtool_%s as M, auth_user_groups as AUG,
-        WHERE
-        '''
+        model_name = cls._meta.model_name
+        model_table = cls._meta.db_table
+        uid = user.id
 
-        res = self._meta.model.query.raw(query)
+        cls.check_inj(model_name)
+        cls.check_inj(model_table)
+        # query = '''SELECT * FROM collabtool_%s as M, auth_user_groups as AUG,
+        # WHERE M.anoymous_access=TRUE OR (
+        # '''
+        query = '''SELECT * FROM
+       %s as F, collabtool_groupaccess as GA, %s_group_access as FGA, auth_user_groups as AU
+WHERE  F.anonymous_access=TRUE OR (
+       AU.group_id=GA.group_id AND
+       GA.id=FGA.groupaccess_id AND
+       FGA.%s_id=F.id ''' % (
+            model_table, model_table, model_name)
+        if user.is_authenticated:
+            query += '''
+AND AU.user_id=%d''' % (uid)
+        query += ''')'''
+
+        res = cls.objects.raw(query)
         if res:
             return list(res)
         return []
@@ -113,17 +138,11 @@ class AuthMixin(models.Model):
         print self
         mm_table = self.__class__.__dict__[m2m_field.attname].rel.field.m2m_db_table()
 
-        def check_inj(s):
-            import string
-            tocheck = s.encode('utf-8').translate(string.maketrans("", "", ), '-_')
-            if not tocheck.isalnum():
-                raise SuspiciousOperation
-
-        check_inj(model_table)
-        check_inj(rel_model_table)
-        check_inj(mm_table)
-        check_inj(m2m_field.attname)
-        check_inj(model_name)
+        self.check_inj(model_table)
+        self.check_inj(rel_model_table)
+        self.check_inj(mm_table)
+        self.check_inj(m2m_field.attname)
+        self.check_inj(model_name)
 
         uid = user.id
         fid = self.id
@@ -142,7 +161,6 @@ WHERE  F.anonymous_access=TRUE OR (AU.group_id=GA.group_id AND
             query += '''
 AND AU.user_id=%d''' % (uid)
         query += ''')'''
-        print query
 
         res = model.objects.raw(query)
         if res:
@@ -162,11 +180,14 @@ AND AU.user_id=%d''' % (uid)
                issubclass(f.related_model, AuthMixin) and
                f.related_model not in done):
                 res = self.accessible_rel(user, f)
-                if f.related_model == Publication:
-                    print f.related_model
-                    print res
                 out[f.related_model] = res
                 done.append(f.related_model)
+
+        # TODO: now we need to order the publications
+        if Publication in out:
+            for m in out[Publication]:
+                print "Aaaaaaa"
+
         return out
 
     def is_accessible(self, user):
