@@ -52,7 +52,7 @@ class AuthMixin(models.Model):
     class Meta:
         abstract = True
 
-    group_access = models.ManyToManyField(GroupAccess)
+    group_access = models.ManyToManyField(GroupAccess, blank=True)
     anonymous_access = models.BooleanField(default=False)
 
     def get_model_name(self, plural=False):
@@ -129,13 +129,13 @@ AND AU.user_id=%d''' % (uid)
         return []
 
     def accessible_rel(self, user, m2m_field):
+        from django.forms.models import model_to_dict
         """ get the accessible instances of a given model that is in a many-to-many relationship
         with the current field """
         model_name = self._meta.model_name
         model = m2m_field.related_model
         model_table = self._meta.db_table
         rel_model_table = model._meta.db_table
-        print self
         mm_table = self.__class__.__dict__[m2m_field.attname].rel.field.m2m_db_table()
 
         self.check_inj(model_table)
@@ -147,14 +147,14 @@ AND AU.user_id=%d''' % (uid)
         uid = user.id
         fid = self.id
         query = '''
-SELECT * FROM
-       %s as F, collabtool_groupaccess as GA, %s_group_access as FGA,
-       auth_user_groups as AU, %s as MM
-WHERE  F.anonymous_access=TRUE OR (AU.group_id=GA.group_id AND
-       GA.id=FGA.groupaccess_id AND
-       FGA.%s_id=F.id AND
-       F.id=MM.%s_id AND
-       MM.%s_id = %d''' % (
+        SELECT * FROM
+        %s as F, collabtool_groupaccess as GA, %s_group_access as FGA,
+        auth_user_groups as AU, %s as MM
+        WHERE  F.anonymous_access=TRUE OR (AU.group_id=GA.group_id AND
+        GA.id=FGA.groupaccess_id AND
+        FGA.%s_id=F.id AND
+        F.id=MM.%s_id AND
+        MM.%s_id = %d''' % (
             rel_model_table, rel_model_table, mm_table,
             m2m_field.attname, m2m_field.attname, model_name, fid)
         if user.is_authenticated:
@@ -162,36 +162,46 @@ WHERE  F.anonymous_access=TRUE OR (AU.group_id=GA.group_id AND
 AND AU.user_id=%d''' % (uid)
         query += ''')'''
 
-        res = model.objects.raw(query)
-        if res:
-            return list(res)
-        else:
-            return []
+        out = []
+        for i in getattr(self, m2m_field.attname).all():
+            if i.is_accessible(user):
+                out.append(i)
+
+        return out
+        # res = model.objects.raw(query)
+        # if res:
+        #    ret = list(res)
+        #    print ret
+        #    return ret
+        # else:
+        #    return []
 
     def all_accessible_rel(self, user):
         """ this function will return the linked authenticable objects"""
+        from collections import defaultdict, OrderedDict
+        from operator import itemgetter
 
-        out = {}
+        out = defaultdict(list)
 
         # cls = self._meta.model
         done = []
         for f in self._meta.many_to_many:
             if (isinstance(f, ManyToManyField) and
-               issubclass(f.related_model, AuthMixin) and
-               f.related_model not in done):
+               (issubclass(f.related_model, AuthMixin)
+                or issubclass(f.related_model, Publication))
+               and f.related_model not in done):
                 res = self.accessible_rel(user, f)
-                out[f.related_model] = res
+                if issubclass(f.related_model, Publication):
+                    for p in res:
+                        out[p.content_object._meta.model].append(p)
+                else:
+                    out[f.related_model] = res
                 done.append(f.related_model)
 
-        # TODO: now we need to order the publications
-        if Publication in out:
-            for m in out[Publication]:
-                print "Aaaaaaa"
-
-        return out
+        return OrderedDict(sorted(dict(out).items(), key=itemgetter(0)))
 
     def is_accessible(self, user):
-        return True
+        return self.anonymous_access or bool(frozenset(user.groups.all()) and frozenset(self.group_access.all()))
 
 
 class Venue(models.Model):
@@ -332,10 +342,13 @@ class Code(AuthMixin, File):
         return self._meta.verbose_name_plural.capitalize()
 
 
-class Publication(AuthMixin, models.Model):
+class Publication(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+
+    def is_accessible(self, user):
+        return self.content_object.is_accessible(user)
 
     def get_absolute_url(self):
         return self.content_object.get_absolute_url()
