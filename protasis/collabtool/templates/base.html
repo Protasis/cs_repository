@@ -2,12 +2,23 @@
 
 {% load bootstrap3 %}
 {% load staticfiles %}
+{% load i18n %}
 
 {% block bootstrap3_title %}protasis.eu - restoring trust in the cyber space{% endblock %}
 
 {% block bootstrap3_extra_head %}
 <link rel="stylesheet" type="text/css" href="{% static "css/protasis.css" %}"/>
 <link rel="stylesheet" href="https://opensource.keycdn.com/fontawesome/4.7.0/font-awesome.min.css" integrity="sha384-dNpIIXE8U05kAbPhy3G1cz+yZmTzA6CY8Vg/u2L9xRnHjJiAK76m2BIEaSEV+/aU" crossorigin="anonymous">
+<style>
+@media (min-width: 768px){
+    .navbar-nav{
+        float:none;
+        margin: 0 auto;
+        display: table;
+        table-layout: fixed;
+    }
+}
+</style>
 {% endblock %}
 
 
@@ -30,8 +41,11 @@
 
     <div style="margin-top:-14px;" class="navbar navbar-static">
     <div class="navbar-inner" >
-    <ul class="nav nav-pills" role="navigation" >
-    {% block sidebar %}<li><a href="{% url 'index' %} ">&raquo;&nbsp;Home</a></li>{% endblock %}
+    <ul class="navbar-nav nav nav-pills" role="navigation" >
+    {% block sidebar %}
+    <li><a href="{% url 'index' %} "><i class="fa fa-home" aria-hidden="true"></i>&nbsp;Home</a></li>
+    <li><a href="{% url 'messages_inbox' %} "><i class="fa fa-inbox" aria-hidden="true"></i>&nbsp;{% trans "Inbox" %} [x/y]</a></li>
+    {% endblock %}
     </ul>
     </div>
     </div>

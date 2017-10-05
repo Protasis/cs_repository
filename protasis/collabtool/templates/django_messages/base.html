@@ -5,8 +5,7 @@
 {% endblock %}
 {% block sidebar %}
     {{block.super}}
-    <li><a href="{% url 'messages_inbox' %} ">&raquo;&nbsp;{% trans "Inbox" %}</a></li>
-    <li><a href="{% url 'messages_outbox' %} ">&raquo;&nbsp;{% trans "Sent Messages" %}</a></li>
-    <li><a href="{% url 'messages_compose' %} ">&raquo;&nbsp;{% trans "New Message" %}</a></li>
-    <li><a href="{% url 'messages_trash' %} ">&raquo;&nbsp;{% trans "Trash" %}</a></li>
+    <li><a href="{% url 'messages_outbox' %} "><i class="fa fa-archive" aria-hidden="true"></i>&nbsp;{% trans "Sent Messages" %}</a></li>
+    <li><a href="{% url 'messages_compose' %} "><i class="fa fa-reply" aria-hidden="true"></i>&nbsp;{% trans "New Message" %}</a></li>
+    <li><a href="{% url 'messages_trash' %} "><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;{% trans "Trash" %}</a></li>
 {% endblock %}
