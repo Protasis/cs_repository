@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import permalink
+from django.apps import apps
 from django.urls import reverse
 from django.utils.text import slugify
 from django.contrib.auth.models import User, Group
@@ -8,6 +9,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields.related import ManyToManyField
 from django.core.exceptions import SuspiciousOperation
+from django.db.models import Q
 # Create your models here.
 
 
@@ -99,34 +101,42 @@ class AuthMixin(models.Model):
             raise SuspiciousOperation
 
     @classmethod
-    def get_accessible(cls, user):
+    def get_accessible(cls, user, unlinked=False):
         """ get all the accessible instances of the model """
 
-        model_name = cls._meta.model_name
-        model_table = cls._meta.db_table
-        uid = user.id
+        accessible_objs = cls.objects.filter(
+            Q(group_access__group_id__in=map(lambda x: x.id,  user.groups.all())) |
+            Q(anonymous_access=True))
 
-        cls.check_inj(model_name)
-        cls.check_inj(model_table)
-        # query = '''SELECT * FROM collabtool_%s as M, auth_user_groups as AUG,
-        # WHERE M.anoymous_access=TRUE OR (
-        # '''
-        query = '''SELECT * FROM
-       %s as F, collabtool_groupaccess as GA, %s_group_access as FGA, auth_user_groups as AU
-WHERE  F.anonymous_access=TRUE OR (
-       AU.group_id=GA.group_id AND
-       GA.id=FGA.groupaccess_id AND
-       FGA.%s_id=F.id ''' % (
-            model_table, model_table, model_name)
-        if user.is_authenticated:
-            query += '''
-AND AU.user_id=%d''' % (uid)
-        query += ''')'''
+        if accessible_objs:
+            accessible_objs = list(accessible_objs)
+        else:
+            return []
 
-        res = cls.objects.raw(query)
-        if res:
-            return list(res)
-        return []
+        if not unlinked:
+            return accessible_objs
+
+        print accessible_objs
+        if issubclass(cls, PublicationBase):
+            # if it's a publication we need to scan Publication model too
+            ct = ContentType.objects.filter(Q(app_label='collabtool') and Q(model=cls.__name__)).first()
+            if ct:
+                pub = Publication.objects.filter(
+                        Q(content_type=ct.id) and Q(id__in=map(lambda x: x.id, accessible_objs)))
+                for p in pub:
+                    for mm in p._meta.related_objects:
+                        if getattr(p, '%s_set' % mm.name).all().count() > 0:
+                            try:
+                                accessible_objs.remove(p.content_object)
+                            except ValueError:
+                                pass
+
+        for i in accessible_objs:
+            for mm in i._meta.related_objects:
+                if getattr(i, '%s_set' % mm.name).all().count() > 0:
+                    accessible_objs.remove(i)
+
+        return accessible_objs
 
     def accessible_rel(self, user, m2m_field):
         from django.forms.models import model_to_dict
@@ -256,7 +266,7 @@ class InstitutionAuthor(models.Model):
     """ since one author can have more than one affiliation
     we will need this intermediate model, probably there are better ways
     to do this with django, but I'll stick to the simplest option for now"""
-    author = models.ForeignKey(Author, related_name='institutions')
+    author = models.ForeignKey(Author)
     institution = models.ForeignKey(Institution, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
 
@@ -342,6 +352,15 @@ class Code(AuthMixin, File):
         return self._meta.verbose_name_plural.capitalize()
 
 
+class Vulnerability(File):
+
+    class Meta:
+        verbose_name_plural = "vulnerabilities"
+
+    def get_pl_model_name(self):
+        return self._meta.verbose_name_plural.capitalize()
+
+
 class Publication(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
@@ -384,8 +403,13 @@ class PublicationBase(AuthMixin, File, models.Model):
     class Meta:
         abstract = True
 
+    @staticmethod
+    def get_pub_related_name():
+        name = '%(app_label)s_%(class)s'
+        return name
+
     abstract = models.TextField(null=False, blank=True, default='')
-    authors = models.ManyToManyField(InstitutionAuthor, blank=True)
+    authors = models.ManyToManyField(InstitutionAuthor, blank=True, related_name=get_pub_related_name.__func__())
     corresponding = models.ForeignKey(
         InstitutionAuthor, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL)
@@ -416,20 +440,26 @@ class Paper(PublicationBase):
     it contains title, authors ref, conference,
     dataset, code and bibtex ref"""
 
-    pass
+    @staticmethod
+    def get_ticket_related_name():
+                return 'papers_rel'
 
 
 class Report(PublicationBase):
     """ this class similarly to Paper represent
     a whitepaper, or dissemination material """
 
-    pass
+    @staticmethod
+    def get_ticket_related_name():
+                return 'reports_rel'
 
 
 class Deliverable(PublicationBase):
     """ this class represents a deliverable publication """
 
-    pass
+    @staticmethod
+    def get_ticket_related_name():
+                return 'reports_rel'
 
 
 class Project(AuthMixin, models.Model):
@@ -441,8 +471,8 @@ class Project(AuthMixin, models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField()
 
-    data = models.ManyToManyField(Data, blank=True, related_name='project_data')
-    code = models.ManyToManyField(Code, blank=True, related_name='project_code')
+    data = models.ManyToManyField(Data, blank=True)
+    code = models.ManyToManyField(Code, blank=True)
     publication = models.ManyToManyField(Publication, blank=True)
     institutions = models.ManyToManyField(Institution, blank=True)
 
