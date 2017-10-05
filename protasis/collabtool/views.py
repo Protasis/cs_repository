@@ -109,8 +109,9 @@ def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIE
 
 
 def index(request):
-    return HttpResponse("Protasis CollabTool")
-
+    template = loader.get_template('index.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
 
 def check_user(r, *args, **kwargs):
     cl = kwargs['cl']

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+{% load proj_rel %}
+
+{% block bootstrap3_title %}Protasis Cybersecurity Repository{% endblock %}
+
+
+{% block content %}
+<row class="clearfix">
+    <div class="col-md-12 col-xs-12 no-padding">
+        <div class="panel panel-info">
+
+            <div class="panel-heading"><i class="fa fa-coffee" aria-hidden="true"></i>&nbsp;&nbsp;<b>Welcome{% if request.user.is_authenticated %} {{request.user}}{% endif %}!</b>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tr>
+                        <th scope="row" class="col-md-1 col-xs-2">Description</th>
+                        <td>{{description}}</td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row" class="col-md-1 col-xs-2">Institutions</th>
+                        <td>{% for i in project.institutions.all %}
+                            <a href="{{i.website}}">{{i.name}}</a>
+                            {% if not forloop.last %}, {% endif %}
+                        {% endfor %}</td>
+
+                    </tr>
+
+                    <tr>
+                        <th scope="row" class="col-md-1 col-xs-2">Wiki</th>
+                        <td><a href="{{project.get_wiki_url}}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>
+                    </tr>
+
+                    <tr class="data">
+                        <th scope="row" class="col-md-2 col-xs-3"></th>
+                        <td class="text-right">
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</row>
+
+
+{% endblock %}
