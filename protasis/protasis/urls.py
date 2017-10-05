@@ -26,3 +26,5 @@ urlpatterns = [
     url(r'^accounts/login/$', login),
     url(r'^accounts/logout/$', logout)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+admin.site.site_header = "Repository admin"

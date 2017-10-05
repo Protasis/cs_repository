@@ -11,3 +11,4 @@ Other features that can be added in the future include:
   + user comments
   + statistics for projects/papers/authors
   + better management system for permissions/insertions
+  + REST API

@@ -105,6 +105,12 @@ class AuthMixin(models.Model):
     def get_accessible(cls, user, unlinked=False):
         """ get all the accessible instances of the model """
 
+        if cls._meta.abstract:
+            out = []
+            for m in cls.__subclasses__():
+                out.extend(m.get_accessible(user, unlinked))
+            return out
+
         accessible_objs = cls.objects.filter(
             Q(group_access__group_id__in=map(lambda x: x.id,  user.groups.all())) |
             Q(anonymous_access=True))
@@ -117,7 +123,6 @@ class AuthMixin(models.Model):
         if not unlinked:
             return accessible_objs
 
-        print accessible_objs
         if issubclass(cls, PublicationBase):
             # if it's a publication we need to scan Publication model too
             ct = ContentType.objects.filter(Q(app_label='collabtool') and Q(model=cls.__name__)).first()
@@ -135,7 +140,10 @@ class AuthMixin(models.Model):
         for i in accessible_objs:
             for mm in i._meta.related_objects:
                 if getattr(i, '%s_set' % mm.name).all().count() > 0:
-                    accessible_objs.remove(i)
+                    try:
+                        accessible_objs.remove(i)
+                    except ValueError:
+                        pass
 
         return accessible_objs
 
