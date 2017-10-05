@@ -215,6 +215,31 @@ AND AU.user_id=%d''' % (uid)
         return self.anonymous_access or bool(frozenset(user.groups.all()) and frozenset(self.group_access.all()))
 
 
+class Tagged(models.Model):
+
+    class Meta:
+        abstract = True
+
+    tags = models.CharField(max_length=256, blank=True,
+                            help_text='List of tags separated by commas.')
+
+    def get_tags(self):
+        return self.tags.split(',')
+
+
+class Advisories(models.Model):
+
+    class Meta:
+        abstract = True
+
+    advisories = models.CharField(
+        max_length=256, blank=True,
+        help_text='List of advisory IDs separated by commas.')
+
+    def get_advisories(self):
+        return self.advisories.split(',')
+
+
 class Venue(models.Model):
     name = models.CharField(max_length=256)
     acronym = models.CharField(max_length=256)
@@ -401,7 +426,7 @@ class Publication(models.Model):
             return self.__class__.__name__
 
 
-class PublicationBase(AuthMixin, File, models.Model):
+class PublicationBase(AuthMixin, File, Tagged, Advisories, models.Model):
 
     class Meta:
         abstract = True
@@ -480,10 +505,10 @@ class Deliverable(PublicationBase):
 
     @staticmethod
     def get_ticket_related_name():
-                return 'reports_rel'
+                return 'deliverables_rel'
 
 
-class Project(AuthMixin, models.Model):
+class Project(AuthMixin, Tagged, models.Model):
     """ this class represents a paper (i.e. syssec, protasis)
     it will act as a container for any materia (papers, whitepapers,
     wiki with material...) """

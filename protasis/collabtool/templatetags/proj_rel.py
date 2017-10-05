@@ -17,3 +17,7 @@ def get_class(obj):
 @register.filter
 def get_date(date, arg="%B, %Y"):
     return date.strftime(arg)
+
+@register.filter(name='split')
+def split(value, arg):
+    return value.split(arg)

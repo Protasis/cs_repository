@@ -60,6 +60,14 @@
                         </div></td>
                     </tr>
                     {% endif %}
+                    {% if paper.advisories %}
+                    <tr>
+                        <th scope="row" class="col-md-2 col-xs-3">Advisories</th>
+                        <td scope="row" class="col-md-2 col-xs-2">{% for adv in paper.advisories|split:',' %}<span class="label label-info" style="display:inline-block;">{{adv}}</span>&nbsp;{% endfor %}
+                        </td>
+                    </tr>
+                    {% endif %}
+
                     <tr class="data">
                         <th scope="row" class="col-md-2 col-xs-3"></th>
                         <td class="text-right">
