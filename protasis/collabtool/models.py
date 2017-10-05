@@ -379,15 +379,6 @@ class Code(AuthMixin, File):
         return self._meta.verbose_name_plural.capitalize()
 
 
-class Vulnerability(File):
-
-    class Meta:
-        verbose_name_plural = "vulnerabilities"
-
-    def get_pl_model_name(self):
-        return self._meta.verbose_name_plural.capitalize()
-
-
 class Publication(models.Model):
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
