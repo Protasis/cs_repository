@@ -12,10 +12,7 @@
 <style>
 @media (min-width: 768px){
     .navbar-nav{
-        float:none;
-        margin: 0 auto;
-        display: table;
-        table-layout: fixed;
+        padding-left: 30px;
     }
 }
 </style>
@@ -39,7 +36,7 @@
         <hr>
     </div>
 
-    <div style="margin-top:-16px;" class="navbar navbar-static">
+    <div style="margin-top:-18px;" class="navbar navbar-static">
     <div class="navbar-inner" >
     <ul class="navbar-nav nav nav-pills" role="navigation" >
     {% block sidebar %}
@@ -49,7 +46,7 @@
     </ul>
     </div>
     </div>
-    <hr style="margin-top:-16px;">
+    <hr style="margin-top:-18px;">
 
 
     {% block content %}(no content){% endblock %}
