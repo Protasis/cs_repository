@@ -51,6 +51,12 @@ def project(request, p):
 
 
 def paper(request, p):
+
+    cite =  request.GET.get('cite', None)
+    if cite == 'bibtex':
+        content = p.bibtex
+        return HttpResponse(content, content_type='text/plain; charset=utf8')
+
     template = loader.get_template('paper.html')
     context = {
         'cl': 'paper',
