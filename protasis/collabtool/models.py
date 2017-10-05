@@ -449,6 +449,12 @@ class PublicationBase(AuthMixin, File, models.Model):
 
         super(PublicationBase, self).save(*args, **kwargs)
 
+    def export_bibtex(self):
+        if self.bibtex:
+            return self.bibtex
+
+        # TODO: export bibtex from inserted fields if bibtex not present
+
 
 class Paper(PublicationBase):
     """ this class represent a paper

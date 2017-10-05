@@ -45,7 +45,19 @@
                     {% if paper.bibtex %}
                     <tr>
                         <th scope="row" class="col-md-2 col-xs-3">Cite</th>
-                        <td>{{paper.bibtex}}</td>
+                        <td><div class="input-group">
+                          <span class="input-group-addon" id="basic-addon">Export as</span>
+                          <div class="input-group-btn dropup">
+                              <button type="button" class="btn btn-secondary dropdown-toggle"
+                                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                              >Citation format</button>
+                              <div class="dropdown-menu">
+                                  <a class="dropdown-item"
+                                  href="?bibtex"
+                                  >BibTex</a>
+                              </div>
+                          </div>
+                        </div></td>
                     </tr>
                     {% endif %}
                     <tr class="data">
