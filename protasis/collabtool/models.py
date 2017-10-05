@@ -10,6 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields.related import ManyToManyField
 from django.core.exceptions import SuspiciousOperation
 from django.db.models import Q
+from utils import ChoiceEnum
 # Create your models here.
 
 
@@ -326,7 +327,8 @@ class File(models.Model):
 
     def get_file_url(self):
         import os
-        return reverse('get_data', args=(self.sha512, os.path.split(self.file.name)[-1]))
+        if (self.sha512 and self.file.name):
+            return reverse('get_data', args=(self.sha512, os.path.split(self.file.name)[-1]))
 
     def get_absolute_url(self):
         return self.get_file_url()
@@ -362,9 +364,22 @@ class Vulnerability(File):
 
 
 class Publication(models.Model):
+
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+
+    # Status of the publication
+    class EStatuses(ChoiceEnum):
+        draft = 0
+        submitted = 1
+        accepted = 2
+        published = 3
+
+    status = models.CharField(max_length=1, choices=EStatuses.choices(), default=EStatuses.published.value)
+    doi = models.CharField(max_length=128, verbose_name='DOI', blank=True, null=True, unique=True)
+    isbn = models.CharField(max_length=32, verbose_name='ISBN', blank=True, null=True, unique=True,
+                            help_text='Only for a book.')  # A-B-C-D
 
     def is_accessible(self, user):
         return self.content_object.is_accessible(user)
