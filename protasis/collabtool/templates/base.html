@@ -3,6 +3,7 @@
 {% load bootstrap3 %}
 {% load staticfiles %}
 {% load i18n %}
+{% load proj_rel %}
 
 {% block bootstrap3_title %}protasis.eu - restoring trust in the cyber space{% endblock %}
 
@@ -41,7 +42,7 @@
     <ul class="navbar-nav nav nav-pills" role="navigation" >
     {% block sidebar %}
     <li><a href="{% url 'index' %} "><i class="fa fa-home" aria-hidden="true"></i>&nbsp;Home</a></li>
-    <li><a href="{% url 'messages_inbox' %} "><i class="fa fa-inbox" aria-hidden="true"></i>&nbsp;{% trans "Inbox" %} [x/y]</a></li>
+    <li><a href="{% url 'messages_inbox' %} "><i class="fa fa-inbox" aria-hidden="true"></i>&nbsp;{% trans "Inbox" %} [{{request.user|get_inbox_count}}]</a></li>
     {% endblock %}
     </ul>
     </div>

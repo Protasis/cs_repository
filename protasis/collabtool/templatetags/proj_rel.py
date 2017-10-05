@@ -21,3 +21,8 @@ def get_date(date, arg="%B, %Y"):
 @register.filter(name='split')
 def split(value, arg):
     return value.split(arg)
+
+@register.filter(name='get_inbox_count')
+def inbox_count(user):
+    from django_messages.models import inbox_count_for
+    return inbox_count_for(user)
