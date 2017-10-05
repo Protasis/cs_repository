@@ -187,8 +187,8 @@ def serve_static(request, path, *args, **kwargs):
         from django.views.static import serve
 
         path = os.path.join(*os.path.split(path)[1:])
-        return serve(request, path, file_root)
-
+        s = serve(request, path, file_root)
+        return s
 
 @check_data_access()
 def protected_data(request, hash, filename, obj=None):

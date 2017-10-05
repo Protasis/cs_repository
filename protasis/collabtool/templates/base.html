@@ -8,16 +8,16 @@
 {% block bootstrap3_title %}protasis.eu - restoring trust in the cyber space{% endblock %}
 
 {% block bootstrap3_extra_head %}
-<meta name="designer" content="Davide Quarta <davide.quarta@polimi.it>, Antonis Krithinakis <krithin@ics.forth.gr>" />
-<link rel="stylesheet" type="text/css" href="{% static "css/protasis.css" %}"/>
-<link rel="stylesheet" href="https://opensource.keycdn.com/fontawesome/4.7.0/font-awesome.min.css" integrity="sha384-dNpIIXE8U05kAbPhy3G1cz+yZmTzA6CY8Vg/u2L9xRnHjJiAK76m2BIEaSEV+/aU" crossorigin="anonymous">
-<style>
-@media (min-width: 768px){
-    .navbar-nav{
+    <meta name="designer" content="Davide Quarta <davide.quarta@polimi.it>, Antonis Krithinakis <krithin@ics.forth.gr>" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/protasis.css" %}"/>
+    <link rel="stylesheet" href="https://opensource.keycdn.com/fontawesome/4.7.0/font-awesome.min.css" integrity="sha384-dNpIIXE8U05kAbPhy3G1cz+yZmTzA6CY8Vg/u2L9xRnHjJiAK76m2BIEaSEV+/aU" crossorigin="anonymous">
+    <style>
+    @media (min-width: 768px){
+        .navbar-nav{
         padding-left: 30px;
+        }
     }
-}
-</style>
+    </style>
 {% endblock %}
 
 
@@ -67,4 +67,19 @@
 
 </div>
 
+{% endblock %}
+
+{% block bootstrap3_extra_script %}
+<script src="{% static "js/jquery.cookiesdirective.js" %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $.cookiesDirective({
+            privacyPolicyUri: "{% static 'demo.html' %}",
+            position: 'bottom',
+            backGroundOpacity: '99',
+            backgroundColor: '#295084',
+            fontColor: '#000000'
+        });
+    });
+</script>
 {% endblock %}
