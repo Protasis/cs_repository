@@ -369,18 +369,6 @@ class Publication(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
-    # Status of the publication
-    class EStatuses(ChoiceEnum):
-        draft = 0
-        submitted = 1
-        accepted = 2
-        published = 3
-
-    status = models.CharField(max_length=1, choices=EStatuses.choices(), default=EStatuses.published.value)
-    doi = models.CharField(max_length=128, verbose_name='DOI', blank=True, null=True, unique=True)
-    isbn = models.CharField(max_length=32, verbose_name='ISBN', blank=True, null=True, unique=True,
-                            help_text='Only for a book.')  # A-B-C-D
-
     def is_accessible(self, user):
         return self.content_object.is_accessible(user)
 
@@ -433,6 +421,18 @@ class PublicationBase(AuthMixin, File, models.Model):
     data = models.ManyToManyField(Data, blank=True)
     code = models.ManyToManyField(Code, blank=True)
     bibtex = models.TextField(null=True, blank=True)
+
+    # Status of the publication
+    class EStatuses(ChoiceEnum):
+        draft = 0
+        submitted = 1
+        accepted = 2
+        published = 3
+
+    status = models.CharField(max_length=1, choices=EStatuses.choices(), default=EStatuses.published.value)
+    doi = models.CharField(max_length=128, verbose_name='DOI', blank=True, null=True, unique=True)
+    isbn = models.CharField(max_length=32, verbose_name='ISBN', blank=True, null=True, unique=True,
+                            help_text='Only for a book.')  # A-B-C-D
 
     @classmethod
     def iter_subclasses(cls):
