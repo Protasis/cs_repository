@@ -115,6 +115,9 @@ class AuthMixin(models.Model):
             Q(group_access__group_id__in=map(lambda x: x.id,  user.groups.all())) |
             Q(anonymous_access=True))
 
+        if issubclass(cls, PublicationBase):
+            accessible_objs = accessible_objs.order_by('date')
+
         if accessible_objs:
             accessible_objs = list(accessible_objs)
         else:

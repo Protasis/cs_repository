@@ -8,7 +8,7 @@ from bleach import clean
 from markdown import markdown
 from django.http import HttpResponseNotFound, HttpResponseForbidden
 from django.utils.safestring import mark_safe
-from .models import Paper, Project, Report, Deliverable, Data, AuthMixin
+from .models import Paper, Project, Report, Deliverable, Data, AuthMixin, PublicationBase
 from functools import wraps
 # Create your views here.
 
@@ -109,11 +109,24 @@ def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIE
 
 
 def index(request):
+    from collections import defaultdict, OrderedDict
+    from operator import itemgetter
+
     template = loader.get_template('index.html')
-    all_accessible_objs = {}
+    all_accessible_objs = defaultdict(list)
 
     for m in AuthMixin.__subclasses__():
-        print ''
+        if m == PublicationBase:
+            for p in m.get_accessible(request.user, True):
+                all_accessible_objs[p._meta.object_name].append(p)
+        else:
+            all_accessible_objs[m._meta.object_name].extend(
+                m.get_accessible(request.user, True))
+
+    all_accessible_objs = OrderedDict(
+            sorted(dict(all_accessible_objs).items(), key=itemgetter(0)))
+
+    print all_accessible_objs
 
     context = {}
     return HttpResponse(template.render(context, request))
