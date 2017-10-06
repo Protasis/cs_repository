@@ -1,14 +1,17 @@
 from BeautifulSoup import BeautifulSoup, NavigableString
-from collabtool.models import Deliverable, Group, GroupAccess
+from collabtool.models import Deliverable, Group, GroupAccess, Project, Publication
 from django.core.management.base import BaseCommand, CommandError
 import os
 import urlparse
 from rfc3987 import parse as rfc3987_parse
 from dateutil.parser import parse as dateutil_parse
 import re
+from django.db.utils import IntegrityError
+from django.contrib.contenttypes.models import ContentType
+
 
 SYSSEC_URL = 'http://www.syssec-project.eu'
-DEBUG = True
+DEBUG = False
 
 
 def scrape_deliv(fname):
@@ -64,11 +67,24 @@ def scrape_deliv(fname):
                         title = "%s %s" % (title, str(c))
                         title = title.strip()
 
-                d = Deliverable(title=title, url=url, date=date)
+                d = Deliverable.objects.filter(title=title).first()
+                if not d:
+                    d = Deliverable(title=title, url=url, date=date)
+
                 if not DEBUG:
                     d.save()
                     d.group_access.add(group_access)
                     d.save()
+
+                    # now add to the syssec project
+                    content_type = ContentType.objects.get(
+                        app_label='collabtool', model='Deliverable')
+                    project = Project.objects.get(title__iexact='syssec')
+                    publication = Publication(
+                        content_type=content_type, object_id=d.id)
+                    publication.save()
+                    project.publication.add(publication)
+                    publication.save()
                 else:
                     print "%s (%s), %s" % (d.title, d.date, d.url)
 
