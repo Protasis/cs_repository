@@ -19,3 +19,4 @@ git+https://github.com/arthanson/django-genericadmin#egg=genericadmin
 git+https://github.com/arneb/django-messages#egg=django_messages
 enum34
 rfc3987
+python-dateutil

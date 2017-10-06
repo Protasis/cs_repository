@@ -1,15 +1,14 @@
-from BeautifulSoup import BeautifulSoup
-from collabtool.models import Deliverable, Group
+from BeautifulSoup import BeautifulSoup, NavigableString
+from collabtool.models import Deliverable, Group, GroupAccess
 from django.core.management.base import BaseCommand, CommandError
 import os
 import urlparse
-from rfc3987 import parse
+from rfc3987 import parse as rfc3987_parse
+from dateutil.parser import parse as dateutil_parse
+import re
 
 SYSSEC_URL = 'http://www.syssec-project.eu'
-
-
-def save_deliv(g, d):
-    pass
+DEBUG = True
 
 
 def scrape_deliv(fname):
@@ -18,6 +17,7 @@ def scrape_deliv(fname):
     n = b.findAll('h2')[0]
 
     syssec_group = Group.objects.filter(name='syssec').first()
+    group_access = GroupAccess.objects.filter(group=syssec_group).first()
 
     while True:
         n = n.nextSibling
@@ -33,17 +33,44 @@ def scrape_deliv(fname):
 
                 if dt != 'SysSec Deliverable':
                     continue
-                title = li.contents[1].text.strip()
                 url = dict(li.find('a').attrs)['href']
                 # ensure validity of url
                 try:
-                    parse(url)
+                    rfc3987_parse(url, rule='IRI')
                 except ValueError:
                     url = SYSSEC_URL+url
-                    parse(url)
+                    rfc3987_parse(url, rule='IRI')
 
-                d = Deliverable(title=title, url=url)
-                save_deliv(syssec_group, d)
+                title = li.contents[1].text.strip()
+
+                donext = True
+                for c in li.contents[2:]:
+                    ctext = str(c)
+                    if isinstance(c, NavigableString) and ctext:
+                        for d in re.findall("[\w\s]+", ctext):
+                            try:
+                                date = dateutil_parse(d)
+                                donext = False
+                                break
+                            except ValueError:
+                                donext = True
+                    if not donext:
+                        break
+                    try:
+                        title = "%s %s" % (title, c.contents[0].strip())
+                    except AttributeError:
+                        pass
+                    if isinstance(c, NavigableString) and str(c):
+                        title = "%s %s" % (title, str(c))
+                        title = title.strip()
+
+                d = Deliverable(title=title, url=url, date=date)
+                if not DEBUG:
+                    d.save()
+                    d.group_access.add(group_access)
+                    d.save()
+                else:
+                    print "%s (%s), %s" % (d.title, d.date, d.url)
 
 
 class Command(BaseCommand):
