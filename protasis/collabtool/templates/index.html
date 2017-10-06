@@ -16,25 +16,8 @@
 
             <div class="table-responsive">
                 <table class="table table-striped">
-                    <tr>
-                        <th scope="row" class="col-md-1 col-xs-2">Description</th>
-                        <td>{{description}}</td>
-                    </tr>
 
-                    <tr>
-                        <th scope="row" class="col-md-1 col-xs-2">Institutions</th>
-                        <td>{% for i in project.institutions.all %}
-                            <a href="{{i.website}}">{{i.name}}</a>
-                            {% if not forloop.last %}, {% endif %}
-                        {% endfor %}</td>
-
-                    </tr>
-
-                    <tr>
-                        <th scope="row" class="col-md-1 col-xs-2">Wiki</th>
-                        <td><a href="{{project.get_wiki_url}}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>
-                    </tr>
-
+                    {% include 'proj_rel.html' %}
                     <tr class="data">
                         <th scope="row" class="col-md-2 col-xs-3"></th>
                         <td class="text-right">
