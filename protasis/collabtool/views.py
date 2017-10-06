@@ -116,15 +116,18 @@ def index(request):
     all_accessible_objs = defaultdict(list)
 
     for m in AuthMixin.__subclasses__():
+        print "getting to %s" % m
         if m == PublicationBase:
             for p in m.get_accessible(request.user, True):
-                all_accessible_objs[p.__class__].append(p)
+                if p:
+                    all_accessible_objs[p.__class__].append(p)
         else:
             all_accessible_objs[m].extend(
                 m.get_accessible(request.user, True))
 
-    all_accessible_objs = dict(OrderedDict(
-            sorted(dict(all_accessible_objs).items(), key=itemgetter(0))))
+    all_accessible_objs = OrderedDict(
+                            sorted(all_accessible_objs.items(), key=lambda x: x[0]._meta.model_name))
+    print all_accessible_objs
 
     context = {'rel': all_accessible_objs}
     return HttpResponse(template.render(context, request))

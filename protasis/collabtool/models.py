@@ -107,8 +107,11 @@ class AuthMixin(models.Model):
 
         if cls._meta.abstract:
             out = []
+            print "YOOO: %s" % cls
             for m in cls.__subclasses__():
-                out.extend(m.get_accessible(user, unlinked))
+                ac_objs = m.get_accessible(user, unlinked)
+                print "\t%s" % ac_objs
+                out.extend([o for o in ac_objs if o not in out])
             return out
 
         accessible_objs = cls.objects.filter(
@@ -148,6 +151,7 @@ class AuthMixin(models.Model):
                     except ValueError:
                         pass
 
+        print accessible_objs
         return accessible_objs
 
     def accessible_rel(self, user, m2m_field):
@@ -190,13 +194,6 @@ AND AU.user_id=%d''' % (uid)
                 out.append(i)
 
         return out
-        # res = model.objects.raw(query)
-        # if res:
-        #    ret = list(res)
-        #    print ret
-        #    return ret
-        # else:
-        #    return []
 
     def all_accessible_rel(self, user):
         """ this function will return the linked authenticable objects"""
@@ -220,7 +217,7 @@ AND AU.user_id=%d''' % (uid)
                     out[f.related_model] = res
                 done.append(f.related_model)
 
-        return OrderedDict(sorted(dict(out).items(), key=itemgetter(0)))
+        return OrderedDict(sorted(out.items(), key=lambda x: x[0]._meta.model_name))
 
     def is_accessible(self, user):
         return self.anonymous_access or bool(frozenset(user.groups.all()) and frozenset(self.group_access.all()))
