@@ -43,6 +43,9 @@
     <ul class="navbar-nav nav nav-pills" role="navigation" >
     {% block sidebar %}
     <li><a href="{% url 'index' %} "><i class="fa fa-home" aria-hidden="true"></i>&nbsp;Home</a></li>
+    {% if request.user.is_staff %}
+    <li><a href="{% url 'admin:index' %} "><i class="fa fa-sliders" aria-hidden="true"></i>&nbsp;Admin</a></li>
+    {% endif %}
     {% if request.user.is_authenticated %}
     <li><a href="{% url 'messages_inbox' %} "><i class="fa fa-inbox" aria-hidden="true"></i>&nbsp;{% trans "Inbox" %} [{{request.user|get_inbox_count}}]</a></li>
     {% endif %}
