@@ -393,6 +393,9 @@ class Code(AuthMixin, File):
 
 class Publication(models.Model):
 
+    class Meta:
+        unique_together = ("content_type", "object_id")
+
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
