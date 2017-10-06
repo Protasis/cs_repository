@@ -105,12 +105,11 @@ class AuthMixin(models.Model):
     def get_accessible(cls, user, unlinked=False):
         """ get all the accessible instances of the model """
 
+        print "entering get accessible for %s" % cls._meta.model_name
         if cls._meta.abstract:
             out = []
-            print "YOOO: %s" % cls
             for m in cls.__subclasses__():
                 ac_objs = m.get_accessible(user, unlinked)
-                print "\t%s" % ac_objs
                 out.extend([o for o in ac_objs if o not in out])
             return out
 
@@ -129,19 +128,25 @@ class AuthMixin(models.Model):
         if not unlinked:
             return accessible_objs
 
+        print "BEFORE: %s" % accessible_objs
         if issubclass(cls, PublicationBase):
             # if it's a publication we need to scan Publication model too
             ct = ContentType.objects.filter(Q(app_label='collabtool') and Q(model=cls.__name__)).first()
             if ct:
+                print 'got ct %s' % ct
                 pub = Publication.objects.filter(
-                        Q(content_type=ct.id) and Q(id__in=map(lambda x: x.id, accessible_objs)))
+                    Q(content_type=ct.id) and Q(object_id__in=map(lambda x: x.id, accessible_objs)))
+                print pub
                 for p in pub:
                     for mm in p._meta.related_objects:
+                        print mm
                         if getattr(p, '%s_set' % mm.name).all().count() > 0:
+                            print 'YOLOOOOOO %s' % p
                             try:
                                 accessible_objs.remove(p.content_object)
                             except ValueError:
                                 pass
+        print "FINALE: %s" % accessible_objs
 
         for i in accessible_objs:
             for mm in i._meta.related_objects:
@@ -151,7 +156,6 @@ class AuthMixin(models.Model):
                     except ValueError:
                         pass
 
-        print accessible_objs
         return accessible_objs
 
     def accessible_rel(self, user, m2m_field):

@@ -116,7 +116,6 @@ def index(request):
     all_accessible_objs = defaultdict(list)
 
     for m in AuthMixin.__subclasses__():
-        print "getting to %s" % m
         if m == PublicationBase:
             for p in m.get_accessible(request.user, True):
                 if p:
@@ -127,7 +126,6 @@ def index(request):
 
     all_accessible_objs = OrderedDict(
                             sorted(all_accessible_objs.items(), key=lambda x: x[0]._meta.model_name))
-    print all_accessible_objs
 
     context = {'rel': all_accessible_objs}
     return HttpResponse(template.render(context, request))
