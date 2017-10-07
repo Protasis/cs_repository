@@ -363,6 +363,9 @@ class File(models.Model):
         return self.short_description()
 
     def get_file_url(self):
+        if self.url:
+            return self.url
+
         import os
         if (self.sha512 and self.file.name):
             return reverse('get_data', args=(self.sha512, os.path.split(self.file.name)[-1]))
