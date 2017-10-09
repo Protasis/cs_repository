@@ -165,3 +165,53 @@ WIKI_ACCOUNT_SIGNUP_ALLOWED = False
 
 LOGIN_REDIRECT_URL = '/collabtool/'
 LOGOUT_REDIRECT_URL = '/collabtool/'
+
+
+WIKI_MARKDOWN_HTML_ATTRIBUTES = {
+    u'em': [u'class', u'id'],
+    u'pre': [u'class', u'id'],
+    u'code': [u'class', u'id'],
+    u'figure': [u'class', u'id'],
+    u'h2': [u'class', u'id'],
+    u'h3': [u'class', u'id'],
+    u'h0': [u'class', u'id'],
+    u'h1': [u'class', u'id'],
+    u'h6': [u'class', u'id'],
+    u'h7': [u'class', u'id'],
+    u'h4': [u'class', u'id'],
+    u'h5': [u'class', u'id'],
+    u'table': [u'class', u'id'],
+    u'span': [u'class', u'id'],
+    u'img': [u'class', u'id', u'src', u'alt'],
+    u'ul': [u'class', u'id'],
+    u'tr': [u'class', u'id'],
+    u'tbody': [u'class', u'id'],
+    u'li': [u'class', u'id'],
+    u'hr': [u'class', u'id'],
+    u'th': [u'class', u'id'],
+    u'td': [u'class', u'id'],
+    u'thead': [u'class', u'id'],
+    u'dl': [u'class', u'id'],
+    u'blockquote': [u'class', u'id'],
+    u'acronym': [u'title', u'class', u'id'],
+    u'dd': [u'class', u'id'],
+    u'figcaption': [u'class', u'id'],
+    u'ol': [u'class', u'id'],
+    u'abbr': [u'title', u'class', u'id'],
+    u'br': [u'class', u'id'],
+    u'dt': [u'class', u'id'],
+    u'strong': [u'class', u'id'],
+    u'a': [u'href', u'title', u'class', u'id'],
+    u'b': [u'class', u'id'],
+    u'i': [u'class', u'id'],
+    u'p': [u'class', u'id'],
+    u'div': [u'class', u'id']
+}
+
+WIKI_MARKDOWN_HTML_WHITELIST = [
+    u'a', u'abbr', u'acronym', u'b', u'blockquote', u'code',
+    u'em', u'i', u'li', u'ol', u'strong', u'ul', u'figure',
+    u'figcaption', u'br', u'hr', u'p', u'div', u'img', u'pre',
+    u'span', u'table', u'thead', u'tbody', u'th', u'tr', u'td',
+    u'dl', u'dt', u'dd', u'h0', u'h1', u'h2', u'h3', u'h4',
+    u'h5', u'h6', u'h7']

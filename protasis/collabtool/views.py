@@ -34,6 +34,7 @@ ALLOWED_TAGS = [
     'strong',
     'ul',
     'p',
+    'hr',
 ]
 
 
