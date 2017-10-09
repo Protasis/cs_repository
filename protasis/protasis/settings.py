@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '***REMOVED***'
+SECRET_KEY = 'bg$1m(cfw9_h)jt8##5j!md+v%c9$_5l9fo%^mef+(fy#fn#a4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -95,7 +95,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'collabtool',
         'USER': 'protasis',
-        'PASSWORD': '***REMOVED***',
+        'PASSWORD': 'thisisprotasis',
         'HOST': '192.168.56.8',
         },
 }
